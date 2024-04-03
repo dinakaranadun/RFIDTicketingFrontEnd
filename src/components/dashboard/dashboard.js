@@ -18,9 +18,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
-import Chart from './Chart';
-import Deposits from './Deposits';
-import Orders from './Orders';
+import Chart from './main';
+import Deposits from './pic-component';
+import Orders from './newsdestination';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // Added
+import TripOriginIcon from '@mui/icons-material/TripOrigin'; // Added
 
 function Copyright(props) {
   return (
@@ -81,7 +83,6 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function Dashboard() {
@@ -119,12 +120,18 @@ export default function Dashboard() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              Sri Lankan Railways
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
+            </IconButton>
+            <IconButton color="inherit">
+              <TripOriginIcon /> {/* Added My Trips Icon */}
+            </IconButton>
+            <IconButton color="inherit">
+              <AccountCircleIcon /> {/* Added User Image Icon */}
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -176,7 +183,7 @@ export default function Dashboard() {
                   <Chart />
                 </Paper>
               </Grid>
-              {/* Recent Deposits */}
+              {/* pic */}
               <Grid item xs={12} md={4} lg={3}>
                 <Paper
                   sx={{
@@ -189,14 +196,13 @@ export default function Dashboard() {
                   <Deposits />
                 </Paper>
               </Grid>
-              {/* Recent Orders */}
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Orders />
                 </Paper>
               </Grid>
             </Grid>
-            <Copyright sx={{ pt: 4 }} />
+            {/* <Copyright sx={{ pt: 4 }} /> */}
           </Container>
         </Box>
       </Box>

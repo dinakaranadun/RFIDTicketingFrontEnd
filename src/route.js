@@ -9,16 +9,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/signin" />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/" element={<Navigate to="/signup" />} />
-        <Route path="/signup" element={<SignUp />} />'
-        <Route path="/" element={<Navigate to="/forgetpassword" />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
-        <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/dashboard" element={<Dashboard />} />
-
-
+        <Route path="/" element={<Navigate to="/signin" />} />
       </Routes>
     </Router>
   );
