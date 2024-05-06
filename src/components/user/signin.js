@@ -62,6 +62,7 @@ function SignIn() {
       try {
         const data = await loginUser(email, password);
         const token = data.token;
+        console.log(token);
   
         // Store the token
         localStorage.setItem('token', token);

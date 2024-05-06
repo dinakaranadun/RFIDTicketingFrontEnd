@@ -1,19 +1,20 @@
+
 import * as React from 'react';
 import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import Box from '@mui/material/Box';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
-import AssignmentIcon from '@mui/icons-material/Assignment';
-import Box from '@mui/material/Box';
 
-export const mainListItems = (
+let activeItem = '';
+
+export const mainListItems = (handleDashboardClick) => (
   <React.Fragment>
-    <ListItemButton>
+    <ListItemButton onClick={() => { handleDashboardClick(); activeItem = 'dashboard'; }} style={activeItem === 'dashboard'? { backgroundColor: '#2979ff', color: 'white' } : {}}>
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
@@ -52,7 +53,7 @@ export const mainListItems = (
   </React.Fragment>
 );
 
-export const secondaryListItems = (
+export const secondaryListItems = ({ handleBookTicketClick }) => (
   <React.Fragment>
     <Box display="flex" flexDirection="column" marginTop={20} marginBottom={5}>
       <ListItemButton
@@ -66,6 +67,10 @@ export const secondaryListItems = (
             borderRadius: '10px',
           },
         }}
+        onClick={() => {
+          activeItem = '';
+          handleBookTicketClick();
+        }}
       >
         <ListItemText primary="Book Ticket" sx={{ textAlign: 'center' }} />
       </ListItemButton>
@@ -78,3 +83,21 @@ export const secondaryListItems = (
     </Box>
   </React.Fragment>
 );
+
+export const useDashboard = () => {
+  const [activeItem, setActiveItem] = React.useState('dashboard');
+
+  const handleDashboardClick = () => {
+    setActiveItem('dashboard');
+  };
+
+  const handleBookTicketClick = () => {
+    setActiveItem('');
+  };
+
+  return {
+    activeItem,
+    handleDashboardClick,
+    handleBookTicketClick,
+  };
+};

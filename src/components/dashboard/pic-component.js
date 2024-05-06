@@ -1,16 +1,13 @@
 import * as React from 'react';
-import Link from '@mui/material/Link';
-import Typography from '@mui/material/Typography';
-import Title from './Title';
-
-function preventDefault(event) {
-  event.preventDefault();
-}
 
 export default function Deposits() {
   return (
     <React.Fragment>
-     <Title>Pic</Title>
+      <img 
+        src={process.env.PUBLIC_URL + '/srilankatrain.jpg'} 
+        alt="Train" 
+        style={{ width: '300px', height: '800px' }} // Adjust width as needed
+      />
     </React.Fragment>
   );
 }

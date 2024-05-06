@@ -5,6 +5,18 @@ import SignUp from './components/user/signup';
 import ForgetPassword from './components/user/forgetpassword';
 import Dashboard from './components/dashboard/dashboard';
 
+// Function to check if the user is authenticated
+const isAuthenticated = () => {
+  // Check if the token exists in local storage or any other authentication mechanism you're using
+  const token = localStorage.getItem('token');
+  return !!token; // Returns true if token exists, false otherwise
+};
+
+// Custom route component for protected routes
+const ProtectedRoute = ({ element, path }) => {
+  return isAuthenticated() ? element : <Navigate to="/signin" />;
+};
+
 function App() {
   return (
     <Router>
@@ -12,7 +24,10 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute element={<Dashboard />} />}
+        />
         <Route path="/" element={<Navigate to="/signin" />} />
       </Routes>
     </Router>

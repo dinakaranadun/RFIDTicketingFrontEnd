@@ -13,29 +13,17 @@ import Badge from '@mui/material/Badge';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import Button from '@mui/material/Button';
 import Chart from './main';
 import Deposits from './pic-component';
 import Orders from './newsdestination';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'; // Added
-import TripOriginIcon from '@mui/icons-material/TripOrigin'; // Added
+import BookTicketForm from '../book/bookticket';
 
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+import { mainListItems, secondaryListItems } from './listItems';
 
 const drawerWidth = 240;
 
@@ -87,8 +75,21 @@ const defaultTheme = createTheme();
 
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
+  const [showBookTicketForm, setShowBookTicketForm] = React.useState(false);
+  const [focused, setFocused] = React.useState(false); 
+
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  const handleBookTicketClick = () => {
+    setShowBookTicketForm(true);
+    setFocused(false); 
+  };
+
+  const handleDashboardClick = () => {
+    setShowBookTicketForm(false); 
+    setFocused(true); 
   };
 
   return (
@@ -118,20 +119,17 @@ export default function Dashboard() {
               variant="h6"
               color="inherit"
               noWrap
-              sx={{ flexGrow: 1 }}
+              sx={{ flexGrow: 1, color: focused ? 'primary.main' : 'inherit' }} 
             >
               Sri Lankan Railways
             </Typography>
             <IconButton color="inherit">
+              <AccountCircleIcon /> {/* User Image Icon */}
+            </IconButton>
+            <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
-            </IconButton>
-            <IconButton color="inherit">
-              <TripOriginIcon /> {/* Added My Trips Icon */}
-            </IconButton>
-            <IconButton color="inherit">
-              <AccountCircleIcon /> {/* Added User Image Icon */}
             </IconButton>
           </Toolbar>
         </AppBar>
@@ -150,9 +148,9 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            {mainListItems(handleDashboardClick)}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+            {secondaryListItems({ handleBookTicketClick })}
           </List>
         </Drawer>
         <Box
@@ -170,39 +168,47 @@ export default function Dashboard() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-              </Grid>
-              {/* pic */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
-                </Paper>
-              </Grid>
+              {showBookTicketForm ? (
+                <Grid item xs={12}>
+                  <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                    <BookTicketForm />
+                  </Paper>
+                </Grid>
+              ) : (
+                <>
+                  <Grid item xs={12} md={8} lg={9}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%',
+                      }}
+                    >
+                      <Chart />
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={12} md={4} lg={3}>
+                    <Paper
+                      sx={{
+                        p: 2,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: 600,
+                        width: 330,
+                      }}
+                    >
+                      <Deposits />
+                    </Paper>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', width: 1210 }}>
+                      <Orders />
+                    </Paper>
+                  </Grid>
+                </>
+              )}
             </Grid>
-            {/* <Copyright sx={{ pt: 4 }} /> */}
           </Container>
         </Box>
       </Box>

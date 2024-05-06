@@ -1,9 +1,38 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1', 
-  timeout: 10000, 
+  baseURL: 'http://127.0.0.1:8000/api/v1',
+  timeout: 10000,
 });
+
+const refreshToken = async () => {
+  try {
+    const response = await api.post('/auth/refresh');
+    console.log("Token refreshed successfully"); 
+    return response.data.access_token;
+  } catch (error) {
+    console.error('Error refreshing token:', error); 
+    throw error; 
+  }
+};
+
+// Axios interceptor to handle token refresh
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    if (error.response && error.response.status === 401) {
+      try {
+        const newToken = await refreshToken();
+        error.config.headers.Authorization = `Bearer ${newToken}`;
+        return api.request(error.config);
+      } catch (refreshError) {
+        console.error('Error handling token refresh:', refreshError); 
+        throw refreshError;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const loginUser = async (email, password) => {
   try {
@@ -30,5 +59,54 @@ export const signupUser = async (userData) => {
   }
 };
 
+export const getUserInfo = async (token) => {
+  try {
+    const response = await api.post('/auth/me', null, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
 
+export const getStationData = async () => {
+  try {
+    const response = await api.get('/users/stationdetails');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const searchTrains = async (data) => {
+  try {
+    const response = await api.post('/users/searchtrains', data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchTicketCost = async (data) => {
+  const response = await api.post('/users/calculate-ticket-cost', data);
+  return response.data;
+};
+
+export const bookTicket = async (data) => {
+  const response = await api.post('/users/bookTicket', data);
+  return response.data;
+};
+
+export const getUpcomingTrips = async (data) => {
+  const response = await api.post('/users/upcomingTrips', data);
+  return response.data;
+};
+
+export const deleteBooking = async (bookingId) => {
+  const response = await api.delete(`/users/deleteBooking/${bookingId}`);
+  return response.data;
+};
 export default api;
