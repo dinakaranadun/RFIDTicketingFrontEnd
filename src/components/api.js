@@ -17,22 +17,22 @@ const refreshToken = async () => {
 };
 
 // Axios interceptor to handle token refresh
-api.interceptors.response.use(
-  response => response,
-  async error => {
-    if (error.response && error.response.status === 401) {
-      try {
-        const newToken = await refreshToken();
-        error.config.headers.Authorization = `Bearer ${newToken}`;
-        return api.request(error.config);
-      } catch (refreshError) {
-        console.error('Error handling token refresh:', refreshError); 
-        throw refreshError;
-      }
-    }
-    return Promise.reject(error);
-  }
-);
+// api.interceptors.response.use(
+//   response => response,
+//   async error => {
+//     if (error.response && error.response.status === 401) {
+//       try {
+//         const newToken = await refreshToken();
+//         error.config.headers.Authorization = `Bearer ${newToken}`;
+//         return api.request(error.config);
+//       } catch (refreshError) {
+//         console.error('Error handling token refresh:', refreshError); 
+//         throw refreshError;
+//       }
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export const loginUser = async (email, password) => {
   try {
@@ -109,4 +109,39 @@ export const deleteBooking = async (bookingId) => {
   const response = await api.delete(`/users/deleteBooking/${bookingId}`);
   return response.data;
 };
+
+export const submitForumQuestion = async(data) => {
+  const response = await api.post('/users/createForum', data);
+  return response.data;
+}
+export const getForumPost = async() => {
+  const response = await api.get('/users/getForum');
+  return response.data;
+}
+// Get all forum posts
+export const getForumQuestions = async () => {
+  const response = await api.get('/users/getForum');
+  return response.data;
+};
+export const updateForumPost = async (postId, data) => {
+  try {
+    const response = await api.put(`/users/updateForum/${postId}`, data);
+    console.log(data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating post:', error);
+    throw error;
+  }
+};
+
+export const deleteForumPost = async (postId, token) => {
+  try {
+    const response = await api.delete(`/users/deleteForum/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    throw error;
+  }
+}
+
 export default api;

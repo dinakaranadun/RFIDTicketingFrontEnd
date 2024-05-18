@@ -1,14 +1,54 @@
-
 import React, { useEffect, useState } from 'react';
-import { Paper, Typography, TextField, Button, Grid, MenuItem, CircularProgress, Card, CardContent, Divider, Box } from '@mui/material';
+import { Paper,  TextField, Button, Grid, MenuItem, CircularProgress, Card, CardContent, Divider, Box, CssBaseline,  Badge, Avatar } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getStationData, searchTrains, fetchTicketCost, bookTicket, getUserInfo } from '../api';
 import TicketBookingPopup from './BookTicketPopup';
+import Drawer from '../drawer';
+import MenuIcon from '@mui/icons-material/Menu';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { ThemeProvider } from 'styled-components';
+import { createTheme } from '@mui/material/styles';
+import MuiAppBar from '@mui/material/AppBar';
+import styled from 'styled-components';
+import Toolbar from '@mui/material/Toolbar';
+import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { useNavigate } from 'react-router-dom'; 
+import dayjs from 'dayjs';
 
+
+
+const drawerWidth = 240;
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open' && prop !== 'toggleDrawer', // Exclude toggleDrawer from forward props
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+  }),
+}));
+
+const ToolbarContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+}));
+  
+
+const defaultTheme = createTheme();
 
 const BookTicketForm = () => {
+  const [open, setOpen] = useState(true);
   const [departureOptions, setDepartureOptions] = useState([]);
   const [destinationOptions, setDestinationOptions] = useState([]);
   const [classOptions, setClassOptions] = useState(["First Class", "Second Class", "Third Class"]);
@@ -23,9 +63,12 @@ const BookTicketForm = () => {
   const [ticketCost, setTicketCost] = useState(null);
   const [selectedTrain, setSelectedTrain] = useState([]);
   const [bookingSuccess, setBookingSuccess] = useState(false); 
-  const [showBookTicketForm, setShowBookTicketForm] = useState(true); 
+  const navigate = useNavigate();
 
-  
+
+  const toggleDrawer = () => {
+    setOpen((prevOpen) => !prevOpen);
+  };
 
   useEffect(() => {
     const fetchTrainData = async () => {
@@ -44,6 +87,10 @@ const BookTicketForm = () => {
 
     fetchTrainData();
   }, []);
+
+  // useEffect(() => {
+  //   console.log('Selected Date:', selectedDate ? selectedDate.format('YYYY-MM-DD') : 'No date selected');
+  // }, [selectedDate]);
 
   const handleOpenCalendar = () => {
     setIsCalendarOpen(!isCalendarOpen);
@@ -70,7 +117,6 @@ const BookTicketForm = () => {
 
   const handleBookTicket = async (train) => {
     try {
-      // Prepare booking data including passenger ID
       const data = {
         trainId: train.id,
         departure: train.departure_station_name,
@@ -81,6 +127,7 @@ const BookTicketForm = () => {
         date: selectedDate,
         class: selectedClass,
       };
+      console.log(data);
 
       // Fetch ticket cost
       setSelectedTrain(train);
@@ -107,7 +154,9 @@ const BookTicketForm = () => {
       if (token) {
         const userInfo = await getUserInfo(token);
         console.log('User info:', userInfo);
-        
+
+        const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
+
         const data = {
           trainId: selectedTrain.id,
           departure: selectedTrain.departure_station_name,
@@ -115,7 +164,7 @@ const BookTicketForm = () => {
           departure_id: selectedTrain.departure_station_id,
           destination_id: selectedTrain.destination_station_id,
           train_type: selectedTrain.train_type,
-          date: selectedDate,
+          date: formattedDate,
           class: selectedClass,
           cost: ticketCost,
           passenger_id: userInfo.id,
@@ -125,12 +174,9 @@ const BookTicketForm = () => {
           console.log(data);
           const response = await bookTicket(data);
           setBookingSuccess(true); 
-          setShowBookTicketForm(false);
-          setTimeout(() => {
-            window.location.reload(); 
-          }, 1000);
-          
-          
+          setTimeout(function() {
+            navigate('/dashboard');
+        }, 1500);
         } catch (error) {
           console.error('Error booking ticket:', error);
         }
@@ -140,9 +186,69 @@ const BookTicketForm = () => {
     }
   };
 
-
   return (
-    <Paper sx={{ p: 4, borderRadius: '16px' }}>
+    <ThemeProvider theme={defaultTheme}>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="absolute" open={open} toggleDrawer={toggleDrawer}>
+          <Toolbar
+            sx={{
+              pr: '24px', // keep right padding when drawer closed
+            }}
+          >
+            <ToolbarContent>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  aria-label="open drawer"
+                  onClick={toggleDrawer}
+                  sx={{
+                    marginRight: '36px',
+                    ...(open && { display: 'none' }),
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+                <Typography
+                  component="h1"
+                  variant="h6"
+                  color="inherit"
+                  noWrap
+                  sx={{ display: { xs: 'none', sm: 'block' } }} // Hide on extra-small screens
+                >
+                  Book Ticket
+                </Typography>
+              </div>
+              <div>
+                <IconButton color="inherit">
+                  <Badge badgeContent={4} color="secondary">
+                    <NotificationsIcon />
+                  </Badge>
+                </IconButton>
+                <IconButton color="inherit">
+                  <Avatar alt="User" src="/static/images/avatar/2.jpg" />
+                </IconButton>
+              </div>
+            </ToolbarContent>
+          </Toolbar>
+        </AppBar>
+        <Drawer open={open} toggleDrawer={toggleDrawer} />
+        <Box
+          component="main"
+          sx={{
+            backgroundColor: (theme) =>
+              theme.palette.mode === 'light'
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
+            flexGrow: 1,
+            height: '100vh',
+            overflow: 'auto',
+          }}
+        >
+          <Toolbar />
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Paper sx={{ p: 4, borderRadius: '16px' }}>
       <Typography variant="h4" sx={{ marginBottom: '1rem', color: '#2979ff' }}>
         Book Your Train Ticket
       </Typography>
@@ -211,7 +317,10 @@ const BookTicketForm = () => {
                 label="Select Date"
                 inputVariant="outlined"
                 value={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
+                onChange={(date) => {
+                  console.log('Raw Date Object:', date);
+                  setSelectedDate(date);
+                }}
                 renderInput={(params) => <TextField {...params} fullWidth sx={{ borderRadius: '8px' }} />}
               />
             </LocalizationProvider>
@@ -240,10 +349,10 @@ const BookTicketForm = () => {
                   </Typography>
                   <Divider sx={{ my: 1 }} />
                   <Typography variant="body1" gutterBottom>
-                    <strong>Start Station:</strong> {train.start_station}
+                    <strong>Start Station:</strong> {train.start_station.station_name}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
-                    <strong>Destination:</strong> {train.end_station}
+                    <strong>Destination:</strong> {train.end_station.station_name}
                   </Typography>
                   <Typography variant="body1" gutterBottom>
                     <strong>Train Type:</strong> {train.train_type}
@@ -283,6 +392,10 @@ const BookTicketForm = () => {
         successMessage={bookingSuccess} // Pass the booking success state
       />
     </Paper>
+          </Container>
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
 };
 

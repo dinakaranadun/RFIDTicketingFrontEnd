@@ -167,13 +167,13 @@ export default function Dashboard() {
                     <CardContent sx={{ padding: '1rem' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <Typography variant="body1" sx={typographyStyles}>
-                          {trip.start_station}
+                          {trip.start_station.station_name}
                         </Typography>
                         <Typography variant="body1" sx={{ mx: 1, fontSize: '1.5rem', fontWeight: 'bold' }}>
                           -
                         </Typography>
                         <Typography variant="body1" sx={typographyStyles}>
-                          {trip.destination}
+                          {trip.end_station.station_name}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -247,10 +247,10 @@ export default function Dashboard() {
                 <strong>Class:</strong> {selectedTrip?.class}
               </Typography>
               <Typography variant="body1" sx={{ mt: 2 }}>
-                <strong>Start Station:</strong> {selectedTrip?.start_station}
+                <strong>Start Station:</strong> {selectedTrip?.start_station.station_name}
               </Typography>
               <Typography variant="body1" sx={{ mt: 2 }}>
-                <strong>Destination:</strong> {selectedTrip?.destination}
+                <strong>Destination:</strong> {selectedTrip?.end_station.station_name}
               </Typography>
               <Typography variant="body1" sx={{ mt: 2 }}>
                 <strong>Date:</strong> {selectedTrip?.date}

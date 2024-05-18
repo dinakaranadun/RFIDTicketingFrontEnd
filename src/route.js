@@ -4,6 +4,8 @@ import SignIn from './components/user/signin';
 import SignUp from './components/user/signup';
 import ForgetPassword from './components/user/forgetpassword';
 import Dashboard from './components/dashboard/dashboard';
+import Forum from './components/forum/forum';
+import BookTicket from './components/book/bookticket';
 
 // Function to check if the user is authenticated
 const isAuthenticated = () => {
@@ -13,7 +15,7 @@ const isAuthenticated = () => {
 };
 
 // Custom route component for protected routes
-const ProtectedRoute = ({ element, path }) => {
+const ProtectedRoute = ({ element }) => {
   return isAuthenticated() ? element : <Navigate to="/signin" />;
 };
 
@@ -27,6 +29,14 @@ function App() {
         <Route
           path="/dashboard"
           element={<ProtectedRoute element={<Dashboard />} />}
+        />
+        <Route
+          path="/bookticket"
+          element={<ProtectedRoute element={<BookTicket />} />}
+        />
+        <Route
+          path="/forum"
+          element={<ProtectedRoute element={<Forum />} />}
         />
         <Route path="/" element={<Navigate to="/signin" />} />
       </Routes>
