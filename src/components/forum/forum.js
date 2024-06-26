@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
-import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
@@ -30,34 +29,17 @@ import { format } from 'date-fns';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
 import { getUserInfo, getForumPost, submitForumQuestion, updateForumPost, deleteForumPost } from '../api';
-
-
-const drawerWidth = 240;
+import AppBarComponent from '../appbar';
 
 
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open' && prop !== 'toggleDrawer',
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-  }),
-}));
-
+const defaultTheme = createTheme();
 const ToolbarContent = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   width: '100%',
 }));
-
-const defaultTheme = createTheme();
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -151,6 +133,7 @@ const Forum = () => {
 
     fetchForumPosts();
   }, []);
+
   useEffect(() => {
     const filteredOtherPosts = forumPosts.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()));
     const filteredUserPosts = myForumPosts.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -278,50 +261,7 @@ const Forum = () => {
     <ThemeProvider theme={defaultTheme}>
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
-        <AppBar position="absolute" open={open} toggleDrawer={toggleDrawer}>
-          <Toolbar
-            sx={{
-              pr: '24px',
-            }}
-          >
-            <ToolbarContent>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <IconButton
-                  edge="start"
-                  color="inherit"
-                  aria-label="open drawer"
-                  onClick={toggleDrawer}
-                  sx={{
-                    marginRight: '36px',
-                    ...(open && { display: 'none' }),
-                  }}
-                >
-                  <MenuIcon />
-                </IconButton>
-                <Typography
-                  component="h1"
-                  variant="h6"
-                  color="inherit"
-                  noWrap
-                  sx={{ flexGrow: 1 }}
-                >
-                  Forum
-                </Typography>
-                
-              </div>
-              <div>
-                <IconButton color="inherit">
-                  <Badge badgeContent={4} color="secondary">
-                    <NotificationsIcon />
-                  </Badge>
-                </IconButton>
-                <IconButton color="inherit">
-                  <Avatar alt="User" src="/static/images/avatar/2.jpg" />
-                </IconButton>
-              </div>
-            </ToolbarContent>
-          </Toolbar>
-        </AppBar>
+        <AppBarComponent open={open} toggleDrawer={toggleDrawer} />
         <Drawer open={open} toggleDrawer={toggleDrawer} />
         <Box
           component="main"

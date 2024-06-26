@@ -34,19 +34,13 @@ export const mainListItems = (handleDashboardClick) => (
       </ListItemIcon>
       <ListItemText primary="Dashboard" />
     </ListItemButton>
-    <ListItemButton component={Link} to="/dashboard">
-      <ListItemIcon>
-        <ShoppingCartIcon />
-      </ListItemIcon>
-      <ListItemText primary="Overview" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/upcoming-trips">
+    <ListItemButton component={Link} to="/trips">
       <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
       <ListItemText primary="My Trips" />
     </ListItemButton>
-    <ListItemButton component={Link} to="/rfid-balance">
+    <ListItemButton component={Link} to="/rfid">
       <ListItemIcon>
         <BarChartIcon />
       </ListItemIcon>

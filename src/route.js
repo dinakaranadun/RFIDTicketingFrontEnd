@@ -6,6 +6,9 @@ import ForgetPassword from './components/user/forgetpassword';
 import Dashboard from './components/dashboard/dashboard';
 import Forum from './components/forum/forum';
 import BookTicket from './components/book/bookticket';
+import Schedule from './components/schedule/schedule'
+import RFIDHome from './components/rfid/rfidhome'
+import MyTrips from './components/mytrips/mytrips'
 
 // Function to check if the user is authenticated
 const isAuthenticated = () => {
@@ -37,6 +40,18 @@ function App() {
         <Route
           path="/forum"
           element={<ProtectedRoute element={<Forum />} />}
+        />
+        <Route
+          path="/schedule"
+          element={<ProtectedRoute element={<Schedule />} />}
+        />
+        <Route
+          path="/rfid"
+          element={<ProtectedRoute element={<RFIDHome />} />}
+        />
+        <Route
+          path="/trips"
+          element={<ProtectedRoute element={<MyTrips />} />}
         />
         <Route path="/" element={<Navigate to="/signin" />} />
       </Routes>
