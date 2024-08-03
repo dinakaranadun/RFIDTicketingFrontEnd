@@ -144,4 +144,13 @@ export const deleteForumPost = async (postId, token) => {
   }
 }
 
+export const searchScheduale = async (data) => {
+  try {
+    const response = await api.post('/users/searchscheduale', data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default api;

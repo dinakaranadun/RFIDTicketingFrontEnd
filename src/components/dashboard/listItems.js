@@ -24,11 +24,13 @@ const StyledButton = styled(Button)({
     backgroundColor: '#1434A4',
     color: 'white',
   },
+  
 });
 
 export const mainListItems = (handleDashboardClick) => (
   <React.Fragment>
-    <ListItemButton component={Link} to="/dashboard" onClick={handleDashboardClick}>
+    <ListItemButton component={Link} to="/dashboard" onClick={handleDashboardClick}
+    >
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>

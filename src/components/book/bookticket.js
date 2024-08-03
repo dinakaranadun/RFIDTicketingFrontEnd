@@ -18,6 +18,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom'; 
 import dayjs from 'dayjs';
+import { useLocation } from 'react-router-dom';
 import AppBarComponent from '../appbar';
 
 const defaultTheme = createTheme();
@@ -39,6 +40,8 @@ const BookTicketForm = () => {
   const [selectedTrain, setSelectedTrain] = useState([]);
   const [bookingSuccess, setBookingSuccess] = useState(false); 
   const navigate = useNavigate();
+  const location = useLocation();
+
 
 
   const toggleDrawer = () => {
@@ -61,7 +64,12 @@ const BookTicketForm = () => {
     };
 
     fetchTrainData();
-  }, []);
+    if (location.state) {
+      console.log(location.state.departure_station_name,location.state.destination_station_name);
+      setSelectedDeparture(location.state.departure_station_name);
+      setSelectedDestination(location.state.destination_station_name);
+    }
+  }, [location.state]);
 
   // useEffect(() => {
   //   console.log('Selected Date:', selectedDate ? selectedDate.format('YYYY-MM-DD') : 'No date selected');
