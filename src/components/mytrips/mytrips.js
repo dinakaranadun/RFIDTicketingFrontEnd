@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import React, { useEffect, useState } from 'react';
+import { createTheme, ThemeProvider ,styled } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -11,16 +11,119 @@ import Drawer from '../drawer';
 import AppBarComponent from '../appbar';
 import TripCard from './TripCard';
 import TripDetailsDialog from './TripDetailsDialog';
+import {getUpcomingTrips,getUserInfo,getRecentTrips,deleteBooking} from '../api';
+import { CircularProgress } from '@mui/material';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
+import TextField from '@mui/material/TextField';
 
 const defaultTheme = createTheme();
+
+const StyledTextField = styled(TextField)({
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#0096FF', 
+    },
+    '&:hover fieldset': {
+      borderColor: '#0096FF', 
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#0096FF', 
+    },
+  },
+});
 
 const MyTrips = () => {
   const [open, setOpen] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [upcomingTrips, setUpcomingTrips] = useState([]);
+  const [recentTrips, setRecentTrips] = useState([]);
+  const [filteredUpcomingTrips, setFilteredUpcomingTrips] = useState([]);
+  const [filteredRecentTrips, setFilteredRecentTrips] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [bookingCancelled, setBookingCancelled] = React.useState(false);
+
 
   const toggleDrawer = () => {
     setOpen(!open);
+  };
+
+  useEffect(() => {
+    const fetchUpcomingTripData = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const userInfo = await getUserInfo(token);
+          const upcomingTrips = await getUpcomingTrips({ passenger_id: userInfo.id });
+          setUpcomingTrips(upcomingTrips);
+          setFilteredUpcomingTrips(upcomingTrips);
+        }
+      } catch (error) {
+        console.error('Error fetching Trip data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUpcomingTripData();
+  }, []);
+
+  useEffect(() => {
+    const fetchRecentTripData = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        if (token) {
+          const userInfo = await getUserInfo(token);
+          const recentTrips = await getRecentTrips({ passenger_id: userInfo.id });
+          setRecentTrips(recentTrips);
+          setFilteredRecentTrips(recentTrips);
+        }
+      } catch (error) {
+        console.error('Error fetching Trip data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecentTripData();
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery === '') {
+      setFilteredUpcomingTrips(upcomingTrips);
+      setFilteredRecentTrips(recentTrips);
+    } else {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+  
+      const filterTrips = trips => trips.filter(trip =>
+        trip.start_station.station_name.toLowerCase().includes(lowerCaseQuery) ||
+        trip.end_station.station_name.toLowerCase().includes(lowerCaseQuery)
+      );
+  
+      const filteredUpcomingTrips = filterTrips(upcomingTrips);
+      const filteredRecentTrips = filterTrips(recentTrips);
+  
+      setFilteredUpcomingTrips(filteredUpcomingTrips);
+      setFilteredRecentTrips(filteredRecentTrips);
+    }
+  }, [searchQuery, upcomingTrips, recentTrips]);
+
+  const cancelBooking = async (bookingId) => {
+    console.log('Cancelling booking:', bookingId);
+    try {
+      const response = await deleteBooking(bookingId);
+      console.log(response);
+      setBookingCancelled(true);
+      setTimeout(() => {
+        window.location.reload(); 
+      }, 1000);
+    } catch {
+      console.log('Error cancelling booking');
+    }
   };
 
   const handleCardClick = (trip) => {
@@ -33,19 +136,9 @@ const MyTrips = () => {
     setSelectedTrip(null);
   };
 
-  const upcomingTrips = [
-    { id: 1, title: 'Trip to the mountains', date: '2024-07-15', description: 'A refreshing journey to the mountains.', details: 'More details about the trip to the mountains.' },
-    { id: 2, title: 'Beach vacation', date: '2024-08-01', description: 'Relaxing time at the beach.', details: 'More details about the beach vacation.' },
-    { id: 2, title: 'Beach vacation', date: '2024-08-01', description: 'Relaxing time at the beach.', details: 'More details about the beach vacation.' },
-    { id: 2, title: 'Beach vacation', date: '2024-08-01', description: 'Relaxing time at the beach.', details: 'More details about the beach vacation.' }
-
-
-  ];
-
-  const recentTrips = [
-    { id: 3, title: 'City tour', date: '2024-06-10', description: 'Exploring the city.', details: 'More details about the city tour.' },
-    { id: 4, title: 'Countryside adventure', date: '2024-05-20', description: 'An adventure in the countryside.', details: 'More details about the countryside adventure.' }
-  ];
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -67,14 +160,36 @@ const MyTrips = () => {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              <Grid item xs={12} md={4}>
+                <StyledTextField
+                  label="Search"
+                  variant="outlined"
+                  fullWidth
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            </Grid>
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Typography variant="h4" gutterBottom>Upcoming Trips</Typography>
-                  <Grid container spacing={2}>
-                    {upcomingTrips.map((trip) => (
+                  <Grid container spacing={2} >
+                    {isLoading ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                        <CircularProgress size={100} />
+                      </Box>
+                    ) : filteredUpcomingTrips.map((trip) => (
                       <Grid item xs={12} sm={6} md={4} key={trip.id}>
-                        <TripCard trip={trip} onClick={handleCardClick} />
+                        <TripCard trip={trip} onClick={handleCardClick} isUpcoming={true} />
                       </Grid>
                     ))}
                   </Grid>
@@ -83,8 +198,12 @@ const MyTrips = () => {
               <Grid item xs={12} sx={{ mt: 4 }}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Typography variant="h4" gutterBottom>Recent Trips</Typography>
-                  <Grid container spacing={2}>
-                    {recentTrips.map((trip) => (
+                  <Grid container spacing={2} >
+                    {isLoading ? (
+                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                        <CircularProgress size={100} />
+                      </Box>
+                    ) : filteredRecentTrips.map((trip) => (
                       <Grid item xs={12} sm={6} md={4} key={trip.id}>
                         <TripCard trip={trip} onClick={handleCardClick} />
                       </Grid>
@@ -96,7 +215,7 @@ const MyTrips = () => {
           </Container>
         </Box>
       </Box>
-      <TripDetailsDialog open={dialogOpen} handleClose={handleCloseDialog} trip={selectedTrip} />
+      <TripDetailsDialog open={dialogOpen} handleClose={handleCloseDialog} trip={selectedTrip} isUpcoming={true} cancelBookingFunction={cancelBooking} />
     </ThemeProvider>
   );
 }

@@ -260,7 +260,6 @@ export default function Dashboard() {
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-              {/* Conditional rendering based on whether the booking is cancelled */}
               {!bookingCancelled ? (
                 <Button
                   variant="contained"

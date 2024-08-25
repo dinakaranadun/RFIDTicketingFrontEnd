@@ -79,11 +79,9 @@ function SignIn() {
             setLoginError(error.response.data.message);
           }
         } else if (error.request) {
-          // The request was made  no response
           console.error(error.request);
           setLoginError('Failed to connect to the server');
         } else {
-          // error in setting up the request that triggered
           console.error('Error', error.message);
           setLoginError('An unexpected error occurred');
         }

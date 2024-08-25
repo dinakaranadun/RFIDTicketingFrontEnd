@@ -151,6 +151,7 @@ const BookTicketForm = () => {
           class: selectedClass,
           cost: ticketCost,
           passenger_id: userInfo.id,
+          contact_number:userInfo.contact_number
         };
 
         try {

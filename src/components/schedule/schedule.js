@@ -36,31 +36,6 @@ const customTheme = createTheme({
   },
 });
 
-// const trainData = [
-//   {
-//     id: 1,
-//     trainName: 'Octacore',
-//     time: '06:17',
-//     duration: '4hr 15m',
-//     from: 'Tanah Abang',
-//     to: 'Semarang',
-//     price: '$52.00',
-//     date: '2024-07-30',
-//     classes: ['first', 'second', 'third'],
-//   },
-//   {
-//     id: 2,
-//     trainName: 'Sartem Express',
-//     time: '17:05',
-//     duration: '5hr 16m',
-//     from: 'Semarang',
-//     to: 'Tanah Abang',
-//     price: '$52.00',
-//     date: '2024-07-30',
-//     classes: ['first','second', 'third'],
-//   },
-// ];
-
 const Schedule = () => {
   const [open, setOpen] = useState(true);
   const [searchParams, setSearchParams] = useState({

@@ -153,4 +153,34 @@ export const searchScheduale = async (data) => {
   }
 };
 
+export const getRecentTrips = async (data) => {
+  const response = await api.post('/users/getRecentTrips', data);
+  return response.data;
+};
+
+export const createPaymentIntent = async (amount) => {
+  try {
+    const response = await api.post('/users/createPaymentIntent', { amount }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data.clientSecret;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
+export const paymentSuccess = async (data) => {
+  const response = await api.post('/users/paymentSuccess', data);
+  return response.data;
+};
+
+export const getTransactionData = async (data) => {
+  const response = await api.post('/users/getTransactionData', data);
+  return response.data;
+};
+
 export default api;

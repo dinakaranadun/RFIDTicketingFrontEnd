@@ -11,7 +11,8 @@ import Button from '@mui/material/Button';
 import styled from '@mui/material/styles/styled';
 import { Link } from 'react-router-dom';
 import { Box } from '@mui/material';
-
+import { useEffect, useState } from 'react';
+import {getUserInfo,getRecentTrips} from '../api'
 
 const StyledButton = styled(Button)({
   width:'200px',
@@ -26,6 +27,7 @@ const StyledButton = styled(Button)({
   },
   
 });
+
 
 export const mainListItems = (handleDashboardClick) => (
   <React.Fragment>
@@ -63,7 +65,26 @@ export const mainListItems = (handleDashboardClick) => (
   </React.Fragment>
 );
 
-export const secondaryListItems =()=> (
+export const SecondaryListItems =()=> {
+  const [recentTrips, setRecentTrips] = useState([]);
+  useEffect(() => {
+    const fetchRecentTripData = async () => {
+      try {
+        
+        const token = localStorage.getItem('token');
+        if (token) {
+          const userInfo = await getUserInfo(token);
+          const recentTrips = await getRecentTrips({ passenger_id: userInfo.id });
+          setRecentTrips(recentTrips);
+        }
+      } catch (error) {
+        console.error('Error fetching Trip data:', error);
+      }
+    };
+
+    fetchRecentTripData();
+  }, []);
+  return(
   <React.Fragment>
     <Box>
     <StyledButton component={Link} to="/bookticket" 
@@ -75,11 +96,13 @@ export const secondaryListItems =()=> (
       Book Ticket
     </StyledButton>
     </Box>
-    <ListItemButton component={Link} to="/colombo-to-kandy">
-      <ListItemText primary="Colombo to Kandy" />
-    </ListItemButton>
-    <ListItemButton component={Link} to="/matara-to-colombo">
-      <ListItemText primary="Matara to Colombo" />
-    </ListItemButton>
+   {recentTrips.slice(0, 3).map((trip) => (
+        <ListItemButton key={trip.id} component={Link} to={trip.path}>
+          <ListItemText secondary={trip.start_station.station_name + " to " + trip.end_station.station_name }  />
+        </ListItemButton>
+      ))}
   </React.Fragment>
 );
+};
+export { SecondaryListItems as secondaryListItems };
+

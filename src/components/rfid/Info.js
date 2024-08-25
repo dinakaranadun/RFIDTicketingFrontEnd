@@ -28,7 +28,7 @@ function Info() {
         Current RFID Balance
       </Typography>
       <Typography variant="h4" gutterBottom>
-        {totalCredit !== null ? `$${totalCredit}` : 'Loading...'}
+        {totalCredit !== null ? `Rs.${totalCredit}` : 'Loading...'}
       </Typography>
     </React.Fragment>
   );
