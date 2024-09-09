@@ -6,15 +6,14 @@ import ForgetPassword from './components/user/forgetpassword';
 import Dashboard from './components/dashboard/dashboard';
 import Forum from './components/forum/forum';
 import BookTicket from './components/book/bookticket';
-import Schedule from './components/schedule/schedule'
-import RFIDHome from './components/rfid/rfidhome'
-import MyTrips from './components/mytrips/mytrips'
+import Schedule from './components/schedule/schedule';
+import RFIDHome from './components/rfid/rfidhome';
+import MyTrips from './components/mytrips/mytrips';
+import MyProfile from './components/user/myprofile';
 
-// Function to check if the user is authenticated
 const isAuthenticated = () => {
-  // Check if the token exists in local storage or any other authentication mechanism you're using
   const token = localStorage.getItem('token');
-  return !!token; // Returns true if token exists, false otherwise
+  return !!token; 
 };
 
 // Custom route component for protected routes
@@ -22,16 +21,25 @@ const ProtectedRoute = ({ element }) => {
   return isAuthenticated() ? element : <Navigate to="/signin" />;
 };
 
+// Custom route component for authentication routes (like SignIn)
+const AuthRoute = ({ element }) => {
+  return isAuthenticated() ? <Navigate to="/dashboard" /> : element;
+};
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signin" element={<AuthRoute element={<SignIn />} />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgetpassword" element={<ForgetPassword />} />
         <Route
           path="/dashboard"
           element={<ProtectedRoute element={<Dashboard />} />}
+        />
+        <Route
+          path="/myprofile"
+          element={<ProtectedRoute element={<MyProfile />} />}
         />
         <Route
           path="/bookticket"

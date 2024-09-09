@@ -1,10 +1,9 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom'; 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -12,9 +11,17 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { signupUser } from '../api'; 
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import { useNavigate } from 'react-router-dom'; 
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 
 function SignUp() {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
@@ -22,8 +29,11 @@ function SignUp() {
     NIC: '',
     contactNumber: '',
   });
-
-  const [errors, setErrors] = React.useState({});
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [severity, setSeverity] = useState('success');
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const validateForm = () => {
     const errors = {};
@@ -86,22 +96,34 @@ function SignUp() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formErrors = validateForm();
-
+  
     if (Object.values(formErrors).some(error => error)) {
       setErrors(formErrors);
       return;
     }
-
+  
     try {
       const response = await signupUser(formData);
-
       console.log('User signed up successfully:', response.data);
-      // Redirect the user or show a success message
+      setSeverity('success');
+      setSnackbarMessage('Profile Created successfully! Activate your account and Get an  RFID From Nearest Station and Log In Using Provided Credintials');
+      setTimeout(function() {
+        navigate('/signin');
+    }, 2500);
     } catch (error) {
       console.error('Error signing up:', error);
-      // Handle errors - show error message to the user, etc.
+      setSeverity('error');
+      setSnackbarMessage(error.message);
+      
+      
     }
+    setOpenSnackbar(true);
   };
+
+  const handleSnackbarClose = () => {
+    setOpenSnackbar(false);
+  };
+  
 
   return (
     <ThemeProvider theme={createTheme()}>
@@ -229,6 +251,16 @@ function SignUp() {
                 </RouterLink>
               </Grid>
             </Grid>
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={8000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              >
+                <Alert onClose={handleSnackbarClose} severity={severity}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
           </Box>
         </Box>
       </Container>

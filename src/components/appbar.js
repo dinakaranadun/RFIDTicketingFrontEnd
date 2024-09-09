@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -9,8 +9,9 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import { getUserInfo } from './api';
 
 const drawerWidth = 240;
 
@@ -29,6 +30,26 @@ const CustomAppBar = styled(AppBar)(({ theme, open }) => ({
 const AppBarComponent = ({ open, toggleDrawer }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [profile, setProfile] = useState({});
+
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const userInfo = await getUserInfo(token);
+          console.log('User info from appbar:', userInfo);
+          setProfile(userInfo);
+          console.log("profile" ,profile);
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    }
+    fetchData();
+  }, []);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,6 +57,9 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+  const handleMyProfile = () =>{
+    navigate('/myprofile', { state: { from: location.pathname } });
   };
 
   const handleSignOut = () => {
@@ -67,9 +91,10 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
           </Badge>
         </IconButton>
         <IconButton color="inherit" onClick={handleMenuOpen}>
-          <Avatar alt="User" src="/static/images/avatar/2.jpg" />
+          <Avatar alt="User" src={profile.image_URL ?  `http://localhost:8000/${profile.image_URL}` : "/images/default-avatar.jpeg"} />
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+          <MenuItem onClick={handleMyProfile}>My Profile</MenuItem>
           <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
         </Menu>
       </Toolbar>

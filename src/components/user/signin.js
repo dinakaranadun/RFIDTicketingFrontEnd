@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 function SignIn() {
-  const [email, setEmail] = useState('');
+  const [NIC, setNIC] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -26,41 +26,36 @@ function SignIn() {
 
 
 
-  const validateEmail = () => {
-    if (!email) {
-      setEmailError('Email is required');
-      return false;
-    }
+  // const validateEmail = () => {
+  //   if (!email) {
+  //     setEmailError('Email is required');
+  //     return false;
+  //   }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setEmailError('Invalid email format');
-      return false;
-    }
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   if (!emailRegex.test(email)) {
+  //     setEmailError('Invalid email format');
+  //     return false;
+  //   }
 
-    setEmailError('');
-    return true;
-  };
+  //   setEmailError('');
+  //   return true;
+  // };
 
-  const validatePassword = () => {
-    if (!password) {
-      setPasswordError('Password is required');
-      return false;
-    }
+  // const validatePassword = () => {
+  //   if (!password) {
+  //     setPasswordError('Password is required');
+  //     return false;
+  //   }
 
-    setPasswordError('');
-    return true;
-  };
+  //   setPasswordError('');
+  //   return true;
+  // };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
-    const isEmailValid = validateEmail();
-    const isPasswordValid = validatePassword();
-  
-    if (isEmailValid && isPasswordValid) {
       try {
-        const data = await loginUser(email, password);
+        const data = await loginUser(NIC, password);
         const token = data.token;
         console.log(token);
   
@@ -86,7 +81,7 @@ function SignIn() {
           setLoginError('An unexpected error occurred');
         }
       }
-    }
+    
   };
 
   return (
@@ -112,16 +107,16 @@ function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="NIC"
+              label="National Identity Card Number"
+              name="NIC"
+              autoComplete="NIC"
               autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onBlur={validateEmail}
-              error={!!emailError}
-              helperText={emailError}
+              value={NIC}
+              onChange={(e) => setNIC(e.target.value)}
+              // onBlur={validateEmail}
+              // error={!!emailError}
+              // helperText={emailError}
             />
             <TextField
               margin="normal"
@@ -134,9 +129,9 @@ function SignIn() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onBlur={validatePassword}
-              error={!!passwordError}
-              helperText={passwordError}
+              // onBlur={validatePassword}
+              // error={!!passwordError}
+              // helperText={passwordError}
             />
             {loginError && (
               <Typography variant="body2" color="error">

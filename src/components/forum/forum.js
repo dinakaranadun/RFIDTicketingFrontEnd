@@ -421,9 +421,7 @@ const Forum = () => {
               {filteredPosts.map((post) => (
                 <Grid item xs={12} key={post.id}>
                   <StyledCard
-                    sx={{
-                      mb: 2,
-                    }}
+                    sx={{ borderRadius: '16px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', transition: '0.3s', '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } }}
                     onClick={() => handlePostClick(post.id)}
                   >
                     <CardContent>

@@ -16,8 +16,8 @@ import TextField from '@mui/material/TextField';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import CheckoutForm from './CheckoutForm';
-import RfidBalance from './Info'; // Import your RFID balance component
-import RecentTransactions from './RecentTransactions'; // Import your recent transactions component
+import RfidBalance from './Info'; 
+import RecentTransactions from './RecentTransactions'; 
 
 const stripePromise = loadStripe('pk_test_51PiCtyRtQy7daTjtgRA577ArbsklkoxLFKoFYDtEgU6kAkNlYsABaumWebNSXUiSnoJY0oCRQ1r6k3m4xWEPVUyX00P8pVvZv7');
 

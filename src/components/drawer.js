@@ -1,4 +1,4 @@
-// DrawerContent.js
+
 import React from 'react';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -10,7 +10,6 @@ import { styled } from '@mui/material/styles';
 
 const drawerWidth = 240;
 
-// Define the Drawer styled component with the styling logic
 const Drawer = styled('div')(({ theme, open }) => ({
   position: 'relative',
   whiteSpace: 'nowrap',

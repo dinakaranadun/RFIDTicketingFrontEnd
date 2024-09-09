@@ -10,11 +10,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { ThemeProvider } from 'styled-components';
 import { createTheme } from '@mui/material/styles';
-import MuiAppBar from '@mui/material/AppBar';
-import styled from 'styled-components';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom'; 
 import dayjs from 'dayjs';
@@ -22,6 +19,12 @@ import { useLocation } from 'react-router-dom';
 import AppBarComponent from '../appbar';
 
 const defaultTheme = createTheme();
+
+const themeColors = {
+  primary: '#2979ff', 
+  background: '#f7f9fc',
+  text: '#333333',
+};
 
 const BookTicketForm = () => {
   const [open, setOpen] = useState(true);
@@ -82,13 +85,19 @@ const BookTicketForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+  
     try {
+      const formattedDate = dayjs(selectedDate).startOf('day').format('YYYY-MM-DD');
+  
       const requestData = {
         departure: selectedDeparture,
         destination: selectedDestination,
         class: selectedClass,
-        date: selectedDate,
+        date: formattedDate,  
       };
+  
+      console.log('Request Data:', requestData); 
+  
       const response = await searchTrains(requestData);
       setSearchedTrains(response);
     } catch (error) {
@@ -190,150 +199,156 @@ const BookTicketForm = () => {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Paper sx={{ p: 4, borderRadius: '16px' }}>
-      <Typography variant="h4" sx={{ marginBottom: '1rem', color: '#2979ff' }}>
-        Book Your Train Ticket
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
-            <TextField
-              select
-              id="departure"
-              label="Departure"
-              variant="outlined"
-              fullWidth
-              required
-              value={selectedDeparture}
-              onChange={(e) => setSelectedDeparture(e.target.value)}
-              sx={{ borderRadius: '8px' }}
-            >
-              {departureOptions.map((option, index) => (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              select
-              id="destination"
-              label="Destination"
-              variant="outlined"
-              fullWidth
-              required
-              value={selectedDestination}
-              onChange={(e) => setSelectedDestination(e.target.value)}
-              sx={{ borderRadius: '8px' }}
-            >
-              {destinationOptions.map((option, index) => (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              select
-              id="class"
-              label="Class"
-              variant="outlined"
-              fullWidth
-              required
-              value={selectedClass}
-              onChange={(e) => setSelectedClass(e.target.value)}
-              sx={{ borderRadius: '8px' }}
-            >
-              {classOptions.map((option, index) => (
-                <MenuItem key={index} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                label="Select Date"
-                inputVariant="outlined"
-                value={selectedDate}
-                onChange={(date) => {
-                  console.log('Raw Date Object:', date);
-                  setSelectedDate(date);
-                }}
-                renderInput={(params) => <TextField {...params} fullWidth sx={{ borderRadius: '8px' }} />}
+              <Paper sx={{ p: 4, borderRadius: '16px' }}>
+              <Typography variant="h4" sx={{ marginBottom: '1rem', color: '#2979ff' }}>
+                Book Your Train Ticket
+              </Typography>
+              <form onSubmit={handleSubmit}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      select
+                      id="departure"
+                      label="Departure"
+                      variant="outlined"
+                      fullWidth
+                      required
+                      value={selectedDeparture}
+                      onChange={(e) => setSelectedDeparture(e.target.value)}
+                      sx={{ borderRadius: '8px' }}
+                    >
+                      {departureOptions.map((option, index) => (
+                        <MenuItem key={index} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      select
+                      id="destination"
+                      label="Destination"
+                      variant="outlined"
+                      fullWidth
+                      required
+                      value={selectedDestination}
+                      onChange={(e) => setSelectedDestination(e.target.value)}
+                      sx={{ borderRadius: '8px' }}
+                    >
+                      {destinationOptions.map((option, index) => (
+                        <MenuItem key={index} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      select
+                      id="class"
+                      label="Class"
+                      variant="outlined"
+                      fullWidth
+                      required
+                      value={selectedClass}
+                      onChange={(e) => setSelectedClass(e.target.value)}
+                      sx={{ borderRadius: '8px' }}
+                    >
+                      {classOptions.map((option, index) => (
+                        <MenuItem key={index} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DatePicker
+                        label="Select Date"
+                        inputVariant="outlined"
+                        value={selectedDate}
+                        onChange={(date) => {
+                          console.log('Raw Date Object:', date);
+                          console.log('Formatted Date:', dayjs(date).format('YYYY-MM-DD'));
+                          setSelectedDate(date);
+                        }}
+                        renderInput={(params) => <TextField {...params} fullWidth sx={{ borderRadius: '8px' }} />}
+                      />
+                    </LocalizationProvider>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      sx={{ mt: 2, borderRadius: '8px', bgcolor: themeColors.primary }}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? <CircularProgress size={20} /> : 'Search'}
+                    </Button>
+                  </Grid>
+                </Grid>
+                
+              </form>
+              {searchedTrains.length > 0 ? (
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  {searchedTrains.map((train, index) => (
+                    <Grid item xs={12} key={index}>
+                      <Card sx={{ borderRadius: '16px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', transition: '0.3s', '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } }}>
+                        <CardContent>
+                          <Typography variant="h6" gutterBottom>
+                            <strong>{train.name}</strong>
+                          </Typography>
+                          <Divider sx={{ my: 1 }} />
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Start Station:</strong> {train.start_station.station_name}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Destination:</strong> {train.end_station.station_name}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Train Type:</strong> {train.train_type}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Working Days:</strong> {train.working_days || 'Not specified'}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Special Notes:</strong> {train.special_note || 'None'}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Arrival Time at {train.departure_station_name}:</strong> {train.arrival_time}
+                          </Typography>
+                          <Typography variant="body1" gutterBottom>
+                            <strong>Departure Time from {train.departure_station_name}:</strong> {train.departure_time}
+                          </Typography>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleBookTicket(train)}
+                            sx={{ mt: 2, borderRadius: '8px', bgcolor: '#f50057', '&:hover': { bgcolor: '#ff4081' } }}
+                          >
+                            Book
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              ): (
+                <Typography variant="h6" color="textSecondary" align="center" sx={{ m: 4 }}>
+                  No trains available
+                </Typography>
+              )}
+              <TicketBookingPopup
+                open={openPopup}
+                onClose={handleClosePopup}
+                ticketCost={ticketCost}
+                onBook={handleBookTicketNow}
+                train={selectedTrain}
+                successMessage={bookingSuccess} 
               />
-            </LocalizationProvider>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2, borderRadius: '8px', bgcolor: '#2979ff' }}
-              disabled={isLoading}
-            >
-              {isLoading ? <CircularProgress size={20} /> : 'Search'}
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
-      {searchedTrains.length > 0 && (
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          {searchedTrains.map((train, index) => (
-            <Grid item xs={12} key={index}>
-              <Card sx={{ borderRadius: '16px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', transition: '0.3s', '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } }}>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    <strong>{train.name}</strong>
-                  </Typography>
-                  <Divider sx={{ my: 1 }} />
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Start Station:</strong> {train.start_station.station_name}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Destination:</strong> {train.end_station.station_name}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Train Type:</strong> {train.train_type}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Working Days:</strong> {train.working_days || 'Not specified'}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Special Notes:</strong> {train.special_note || 'None'}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Arrival Time at {train.departure_station_name}:</strong> {train.arrival_time}
-                  </Typography>
-                  <Typography variant="body1" gutterBottom>
-                    <strong>Departure Time from {train.departure_station_name}:</strong> {train.departure_time}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => handleBookTicket(train)}
-                    sx={{ mt: 2, borderRadius: '8px', bgcolor: '#f50057', '&:hover': { bgcolor: '#ff4081' } }}
-                  >
-                    Book
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-      <TicketBookingPopup
-        open={openPopup}
-        onClose={handleClosePopup}
-        ticketCost={ticketCost}
-        onBook={handleBookTicketNow}
-        train={selectedTrain}
-        successMessage={bookingSuccess} // Pass the booking success state
-      />
-    </Paper>
+            </Paper>
           </Container>
         </Box>
       </Box>

@@ -5,7 +5,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, B
 
 const TripDetailsDialog = ({ open, handleClose, trip,isUpcoming,bookingCancelled ,cancelBookingFunction}) => {
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth sx={{ "& .MuiDialog-paper": { borderRadius: '50px' }}}>
       <DialogTitle sx={{ backgroundColor: 'primary.main', color: 'white', py: 2, textAlign: 'center' }}>
         <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
           {trip?.start_station.station_name} to {trip?.end_station.station_name}

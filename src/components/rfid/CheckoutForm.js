@@ -70,6 +70,8 @@ const CheckoutForm = ({ amount }) => {
         }
 
         
+        
+        
     };
 
     const cardElementOptions = {

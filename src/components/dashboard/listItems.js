@@ -3,11 +3,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
+import ForumIcon from '@mui/icons-material/Forum';
 import Button from '@mui/material/Button';
+import ScheduleIcon from '@mui/icons-material/Schedule';
 import styled from '@mui/material/styles/styled';
 import { Link } from 'react-router-dom';
 import { Box } from '@mui/material';
@@ -52,13 +53,13 @@ export const mainListItems = (handleDashboardClick) => (
     </ListItemButton>
     <ListItemButton component={Link} to="/schedule">
       <ListItemIcon>
-        <LayersIcon />
+        <ScheduleIcon />
       </ListItemIcon>
       <ListItemText primary="Schedule" />
     </ListItemButton>
     <ListItemButton component={Link} to="/forum">
       <ListItemIcon>
-        <LayersIcon />
+        <ForumIcon />
       </ListItemIcon>
       <ListItemText primary="Forum" />
     </ListItemButton>

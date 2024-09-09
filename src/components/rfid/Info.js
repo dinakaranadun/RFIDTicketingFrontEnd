@@ -6,7 +6,7 @@ import { getUserInfo } from '../api';
 function Info() {
   const [totalCredit, setTotalCredit] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchData() {
       try {
         const token = localStorage.getItem('token');

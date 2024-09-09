@@ -16,27 +16,11 @@ const refreshToken = async () => {
   }
 };
 
-// Axios interceptor to handle token refresh
-// api.interceptors.response.use(
-//   response => response,
-//   async error => {
-//     if (error.response && error.response.status === 401) {
-//       try {
-//         const newToken = await refreshToken();
-//         error.config.headers.Authorization = `Bearer ${newToken}`;
-//         return api.request(error.config);
-//       } catch (refreshError) {
-//         console.error('Error handling token refresh:', refreshError); 
-//         throw refreshError;
-//       }
-//     }
-//     return Promise.reject(error);
-//   }
-// );
 
-export const loginUser = async (email, password) => {
+
+export const loginUser = async (NIC, password) => {
   try {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/auth/login', { NIC, password });
     return response.data;
   } catch (error) {
     throw error;
@@ -55,7 +39,12 @@ export const signupUser = async (userData) => {
     });
     return response.data;
   } catch (error) {
-    throw error;
+    if (error.response) {
+      const { data, status } = error.response;
+      throw { message: data.message, status };
+    } else {
+      throw error; 
+    }
   }
 };
 
@@ -69,6 +58,47 @@ export const getUserInfo = async (token) => {
     return response.data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const updateUser = async (userID,data) => {
+  try {
+    const response = await api.put(`/users/update/${userID}`,data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const { data, status } = error.response;
+      throw { message: data.message, status };
+    } else {
+      throw error; 
+    }
+  }
+}
+
+export const updateUserPassword = async (userID, data) => {
+  try {
+    const response = await api.put(`/users/updatePassword/${userID}`, data);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const { data, status } = error.response;
+      throw { message: data.message, status };
+    } else {
+      throw error; 
+    }
+  }
+};
+
+export const changeUserPicture = async (userId, formData) => {
+  try {
+      const response = await api.post(`/users/uploadProfileImage/${userId}`, formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data',
+          },
+      });
+      return response.data; // Should include success status and the image path
+  } catch (error) {
+      throw error;
   }
 };
 
@@ -118,7 +148,6 @@ export const getForumPost = async() => {
   const response = await api.get('/users/getForum');
   return response.data;
 }
-// Get all forum posts
 export const getForumQuestions = async () => {
   const response = await api.get('/users/getForum');
   return response.data;
