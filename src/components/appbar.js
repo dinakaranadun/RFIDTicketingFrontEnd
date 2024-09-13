@@ -1,16 +1,15 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
-import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { useNavigate,useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from '@mui/material/styles';
+import NotificationsMenu from './NotificationsMenu'; 
+import MenuIcon from '@mui/icons-material/Menu';
 import { getUserInfo } from './api';
 
 const drawerWidth = 240;
@@ -29,10 +28,10 @@ const CustomAppBar = styled(AppBar)(({ theme, open }) => ({
 
 const AppBarComponent = ({ open, toggleDrawer }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [profile, setProfile] = useState({});
+  const [profileImage, setProfileImage] = useState(localStorage.getItem('profileImage') || "/images/default-avatar.jpeg");
   const navigate = useNavigate();
   const location = useLocation();
-  const [profile, setProfile] = useState({});
-
 
   useEffect(() => {
     async function fetchData() {
@@ -42,14 +41,22 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
           const userInfo = await getUserInfo(token);
           console.log('User info from appbar:', userInfo);
           setProfile(userInfo);
-          console.log("profile" ,profile);
+
+          // Check if profile image URL exists in localStorage
+          if (userInfo.image_URL && `http://localhost:8000/${userInfo.image_URL}` !== profileImage) {
+            const imageURL = `http://localhost:8000/${userInfo.image_URL}`;
+            setProfileImage(imageURL);
+
+            // Save image URL in localStorage
+            localStorage.setItem('profileImage', imageURL);
+          }
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
       }
     }
     fetchData();
-  }, []);
+  }, [profileImage]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -58,12 +65,14 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
-  const handleMyProfile = () =>{
+
+  const handleMyProfile = () => {
     navigate('/myprofile', { state: { from: location.pathname } });
   };
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('profileImage');  // Clear profile image when signing out
     navigate('/');
   };
 
@@ -85,13 +94,11 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
         <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
           Sri Lankan Railways
         </Typography>
-        <IconButton color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+
+        <NotificationsMenu />
+
         <IconButton color="inherit" onClick={handleMenuOpen}>
-          <Avatar alt="User" src={profile.image_URL ?  `http://localhost:8000/${profile.image_URL}` : "/images/default-avatar.jpeg"} />
+          <Avatar alt="User" src={profileImage} />
         </IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           <MenuItem onClick={handleMyProfile}>My Profile</MenuItem>

@@ -212,4 +212,9 @@ export const getTransactionData = async (data) => {
   return response.data;
 };
 
+export const getNotifications = async() => {
+  const response = await api.get('/users/sendNotification');
+  return response.data;
+}
+
 export default api;
