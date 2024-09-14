@@ -1,7 +1,5 @@
-// BookTicketPopup.js
-
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Typography } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Typography,CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 const DialogContentStyled = styled(DialogContent)({
@@ -22,7 +20,7 @@ const ButtonStyled = styled(Button)({
   },
 });
 
-const BookTicketPopup = ({ open, onClose, ticketCost, onBook, train, successMessage }) => {
+const BookTicketPopup = ({ open, onClose, ticketCost, onBook, train, successMessage, isBooking }) => {
   return (
     <Dialog
       open={open}
@@ -56,12 +54,17 @@ const BookTicketPopup = ({ open, onClose, ticketCost, onBook, train, successMess
             Cancel
           </Button>
         )}
-        <ButtonStyled onClick={successMessage ? onClose : onBook} color="primary" autoFocus>
-          {successMessage ? "Close" : "Book Now"}
+        <ButtonStyled
+          onClick={successMessage ? onClose : onBook}
+          color="primary"
+          disabled={isBooking}
+          autoFocus
+        >
+          {isBooking ? <CircularProgress size={20} color="inherit" /> : (successMessage ? "Close" : "Book Now")}
         </ButtonStyled>
       </DialogActions>
     </Dialog>
   );
 };
-
 export default BookTicketPopup;
+

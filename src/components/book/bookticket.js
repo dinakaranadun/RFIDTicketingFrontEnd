@@ -6,8 +6,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getStationData, searchTrains, fetchTicketCost, bookTicket, getUserInfo } from '../api';
 import TicketBookingPopup from './BookTicketPopup';
 import Drawer from '../drawer';
-import MenuIcon from '@mui/icons-material/Menu';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { ThemeProvider } from 'styled-components';
 import { createTheme } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
@@ -15,6 +13,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import { useNavigate } from 'react-router-dom'; 
 import dayjs from 'dayjs';
+
 import { useLocation } from 'react-router-dom';
 import AppBarComponent from '../appbar';
 
@@ -42,6 +41,7 @@ const BookTicketForm = () => {
   const [ticketCost, setTicketCost] = useState(null);
   const [selectedTrain, setSelectedTrain] = useState([]);
   const [bookingSuccess, setBookingSuccess] = useState(false); 
+  const [isBooking, setIsBooking] = useState(false); 
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -81,14 +81,14 @@ const BookTicketForm = () => {
   const handleOpenCalendar = () => {
     setIsCalendarOpen(!isCalendarOpen);
   };
-
+  
+ //search train
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
   
     try {
       const formattedDate = dayjs(selectedDate).startOf('day').format('YYYY-MM-DD');
-  
       const requestData = {
         departure: selectedDeparture,
         destination: selectedDestination,
@@ -106,7 +106,7 @@ const BookTicketForm = () => {
       setIsLoading(false);
     }
   };
-
+  //cost popup
   const handleBookTicket = async (train) => {
     try {
       const data = {
@@ -135,11 +135,15 @@ const BookTicketForm = () => {
     setOpenPopup(false);
   };
 
+  //finizing process
   const handleBookTicketNow = async () => {
     if (!selectedTrain) {
       console.error('No train selected.');
       return;
     }
+
+    setIsBooking(true); 
+
     try {
       const token = localStorage.getItem('token');
       console.log('Retrieved token:', token);
@@ -169,13 +173,16 @@ const BookTicketForm = () => {
           setBookingSuccess(true); 
           setTimeout(function() {
             navigate('/dashboard');
-        }, 1500);
+        }, 1800);
         } catch (error) {
           console.error('Error booking ticket:', error);
         }
       }
     } catch (error) {
       console.error('Error fetching user info:', error);
+    }
+    finally {
+    setIsBooking(false);
     }
   };
 
@@ -347,6 +354,7 @@ const BookTicketForm = () => {
                 onBook={handleBookTicketNow}
                 train={selectedTrain}
                 successMessage={bookingSuccess} 
+                isBooking={isBooking} 
               />
             </Paper>
           </Container>

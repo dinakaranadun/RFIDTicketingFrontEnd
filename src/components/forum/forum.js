@@ -4,9 +4,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import Badge from '@mui/material/Badge';
-import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -24,14 +21,18 @@ import Card from '@mui/material/Card';
 import Container from '@mui/material/Container';
 import CardContent from '@mui/material/CardContent';
 import Drawer from '../drawer';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import { format } from 'date-fns';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
 import { getUserInfo, getForumPost, submitForumQuestion, updateForumPost, deleteForumPost } from '../api';
 import AppBarComponent from '../appbar';
+import { CircularProgress } from '@mui/material';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 
-
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const defaultTheme = createTheme();
 const ToolbarContent = styled('div')(({ theme }) => ({
@@ -108,6 +109,10 @@ const Forum = () => {
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [severity, setSeverity] = useState('success');
+  const [isLoading, setIsLoading] = useState(false);
 
 
   const toggleDrawer = () => {
@@ -117,6 +122,7 @@ const Forum = () => {
   useEffect(() => {
     const fetchForumPosts = async () => {
       try {
+        setIsLoading(true);
         const response = await getForumPost();
         const token = localStorage.getItem('token');
         const userInfo = await getUserInfo(token);
@@ -128,6 +134,9 @@ const Forum = () => {
         setFilteredMyPosts(userPosts);
       } catch (error) {
         console.error('Error fetching forum posts:', error);
+      }
+      finally {
+        setIsLoading(false);
       }
     };
 
@@ -183,8 +192,14 @@ const Forum = () => {
       setMyForumPosts(userPosts);
       setFilteredPosts(otherPosts);
       setFilteredMyPosts(userPosts);
+      setSnackbarMessage('Post Submitted Successfully!');
+      setSeverity('success');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error submitting question:', error);
+      setSnackbarMessage('Error submitting post');
+      setSeverity('error');
+      setOpenSnackbar(true);
     }
   };
 
@@ -241,19 +256,38 @@ const Forum = () => {
       setFilteredPosts(otherPosts);
       setFilteredMyPosts(userPosts);
       handleEditPostClose();
+      setSnackbarMessage('Post Updated Successfully!');
+      setSeverity('success');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error updating post:', error);
+      setSnackbarMessage('Error updating post');
+      setSeverity('error');
+      setOpenSnackbar(true);
     }
   };
 
   const deletePost = async (postId) => {
     try {
       await deleteForumPost(postId);
-    
-        window.location.reload(); 
-     
+      const updatedForumPosts = await getForumPost();
+      const token = localStorage.getItem('token');
+      const userInfo = await getUserInfo(token);
+      const userPosts = updatedForumPosts.filter(post => post.passenger.id === userInfo.id);
+      const otherPosts = updatedForumPosts.filter(post => post.passenger.id !== userInfo.id);
+      setForumPosts(otherPosts);
+      setMyForumPosts(userPosts);
+      setFilteredPosts(otherPosts);
+      setFilteredMyPosts(userPosts);
+      handleDeleteConfirmationClose();
+      setSnackbarMessage('Post Deleted Successfully!');
+      setSeverity('success');
+      setOpenSnackbar(true);
     } catch (error) {
       console.error('Error deleting post:', error);
+      setSnackbarMessage('Error deleting post');
+      setSeverity('error');
+      setOpenSnackbar(true);
     }
   };
 
@@ -279,10 +313,10 @@ const Forum = () => {
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
-              <Heading variant="h6" gutterBottom>
+                <Heading variant="h6" gutterBottom>
                   Browse by Category:
                 </Heading>
-                <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                   <StyledButton
                     variant="outlined"
                     onClick={() => handleCategoryFilter('General')}
@@ -341,113 +375,147 @@ const Forum = () => {
                   }}
                 />
               </Grid>
+              {/* My Posts Section */}
               <Grid item xs={12} sx={{ mb: 2 }}>
                 <Heading variant="h6">My Posts</Heading>
               </Grid>
-              {filteredMyPosts.map((post) => (
-                <Grid item xs={12} key={post.id}>
-                  <StyledCard
-                    sx={{ borderRadius: '16px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', transition: '0.3s', '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } }}
-                    onClick={() => handlePostClick(post.id)}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <StyledAvatar
-                          alt={post.passenger.fName}
-                          src="/static/images/avatar/1.jpg"
-                        />
-                        <Box sx={{ ml: 2 }}>
-                          <SubHeading variant="h6">
-                            {post.passenger.fName + " " + post.passenger.lName}
-                          </SubHeading>
+              {isLoading? <Box sx={{ ml:4}}>
+                <CircularProgress />
+              </Box>
+              :filteredMyPosts.length > 0 ? (
+                filteredMyPosts.map((post) => (
+                  <Grid item xs={12} key={post.id}>
+                    <StyledCard
+                      sx={{ 
+                        borderRadius: '16px', 
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', 
+                        transition: '0.3s', 
+                        '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } 
+                      }}
+                      onClick={() => handlePostClick(post.id)}
+                    >
+                      <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <StyledAvatar
+                            alt={post.passenger.fName}
+                            src="/static/images/avatar/1.jpg"
+                          />
+                          <Box sx={{ ml: 2 }}>
+                            <SubHeading variant="h6">
+                              {post.passenger.fName + " " + post.passenger.lName}
+                            </SubHeading>
+                          </Box>
                         </Box>
-                      </Box>
-                      <Box sx={{ my: 3 }}>
-                        <Heading variant="h6">{post.title}</Heading>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        {format(new Date(post.created_at), 'MM/dd/yyyy')}
-                      </Typography>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditPostOpen(post);
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="secondary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteConfirmationOpen(post.id);
-                          }}
-                        >
-                          Delete
-                        </Button>
-
-                        <Dialog
-                          open={deleteConfirmationOpen}
-                          onClose={handleDeleteConfirmationClose}
-                          TransitionComponent={Transition}
-                        >
-                          <DialogTitle>Are you sure you want to delete this post?</DialogTitle>
-                          <DialogActions>
-                            <Button onClick={handleDeleteConfirmationClose} color="primary">
-                              Cancel
-                            </Button>
-                            <Button onClick={(e) => {
+                        <Box sx={{ my: 3 }}>
+                          <Heading variant="h6">{post.title}</Heading>
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {format(new Date(post.created_at), 'MM/dd/yyyy')}
+                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={(e) => {
                               e.stopPropagation();
-                              deletePost(postToDelete)
-                              }} 
-                              color="secondary">
-                            
-                              Delete
-                            </Button>
-                          </DialogActions>
-                        </Dialog>
-                      </Box>
-                    </CardContent>
-                  </StyledCard>
+                              handleEditPostOpen(post);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteConfirmationOpen(post.id);
+                            }}
+                          >
+                            Delete
+                          </Button>
+
+                          <Dialog
+                            open={deleteConfirmationOpen}
+                            onClose={handleDeleteConfirmationClose}
+                            TransitionComponent={Transition}
+                          >
+                            <DialogTitle>Are you sure you want to delete this post?</DialogTitle>
+                            <DialogActions>
+                              <Button onClick={handleDeleteConfirmationClose} color="primary">
+                                Cancel
+                              </Button>
+                              <Button onClick={(e) => {
+                                e.stopPropagation();
+                                deletePost(postToDelete)
+                                }} 
+                                color="secondary">
+                                Delete
+                              </Button>
+                            </DialogActions>
+                          </Dialog>
+                        </Box>
+                      </CardContent>
+                    </StyledCard>
+                  </Grid>
+                ))
+              ) : (
+                <Grid item xs={12}>
+                  <Typography variant="body1" color="text.secondary" align="center">
+                    No posts found.
+                  </Typography>
                 </Grid>
-              ))}
-              <Grid item xs={12} sx={{ mb: 2 }}>
+              )}
+              {/* Other Posts Section */}
+              <Grid item xs={12} sx={{ mb: 2, mt: 4 }}>
                 <Heading variant="h6">Other Posts</Heading>
               </Grid>
-              {filteredPosts.map((post) => (
-                <Grid item xs={12} key={post.id}>
-                  <StyledCard
-                    sx={{ borderRadius: '16px', boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', transition: '0.3s', '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } }}
-                    onClick={() => handlePostClick(post.id)}
-                  >
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <StyledAvatar
-                          alt={post.passenger.fName}
-                          src="/static/images/avatar/1.jpg"
-                        />
-                        <Box sx={{ ml: 2 }}>
-                          <SubHeading variant="h6">
-                            {post.passenger.fName + " " + post.passenger.lName}
-                          </SubHeading>
+              {isLoading? <Box sx={{ ml:4}}>
+                <CircularProgress />
+              </Box>
+              :filteredPosts.length > 0 ? (
+                filteredPosts.map((post) => (
+                  <Grid item xs={12} key={post.id}>
+                    <StyledCard
+                      sx={{ 
+                        borderRadius: '16px', 
+                        boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', 
+                        transition: '0.3s', 
+                        '&:hover': { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)' } 
+                      }}
+                      onClick={() => handlePostClick(post.id)}
+                    >
+                      <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <StyledAvatar
+                            alt={post.passenger.fName}
+                            src="/static/images/avatar/1.jpg"
+                          />
+                          <Box sx={{ ml: 2 }}>
+                            <SubHeading variant="h6">
+                              {post.passenger.fName + " " + post.passenger.lName}
+                            </SubHeading>
+                          </Box>
                         </Box>
-                      </Box>
-                      <Box sx={{ my: 3 }}>
-                        <Heading variant="h6">{post.title}</Heading>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        {format(new Date(post.created_at), 'MM/dd/yyyy')}
-                      </Typography>
-                    </CardContent>
-                  </StyledCard>
+                        <Box sx={{ my: 3 }}>
+                          <Heading variant="h6">{post.title}</Heading>
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {format(new Date(post.created_at), 'MM/dd/yyyy')}
+                        </Typography>
+                      </CardContent>
+                    </StyledCard>
+                  </Grid>
+                ))
+              ) : (
+                <Grid item xs={12}>
+                  <Typography variant="body1" color="text.secondary" align="center">
+                    No posts found.
+                  </Typography>
                 </Grid>
-              ))}
+              )}
             </Grid>
           </Container>
+          {/* Start/Edit Discussion Dialog */}
           <Dialog
             open={startDiscussionOpen}
             onClose={editPost ? handleEditPostClose : handleStartDiscussionClose}
@@ -495,6 +563,7 @@ const Forum = () => {
               </Button>
             </DialogActions>
           </Dialog>
+          {/* Selected Post Dialog */}
           <Dialog
             open={!!selectedPost}
             onClose={handleClosePost}
@@ -514,13 +583,20 @@ const Forum = () => {
               </Card>
               {selectedPost &&
                 selectedPost.answers &&
-                selectedPost.answers.map((answer, index) => (
-                  <Card sx={{ mb: 2 }} key={index}>
-                    <CardContent>
-                      <Typography variant="body1">{answer.content}</Typography>
-                    </CardContent>
-                  </Card>
-                ))}
+                selectedPost.answers.length > 0 ? (
+                  selectedPost.answers.map((answer, index) => (
+                    <Card sx={{ mb: 2 }} key={index}>
+                      <CardContent>
+                        <Typography variant="body1">{answer.content}</Typography>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <Typography variant="body2" color="text.secondary">
+                    No replies yet.
+                  </Typography>
+                )
+              }
             </DialogContent>
             <DialogActions>
               <Button onClick={handleClosePost} color="primary">
@@ -528,6 +604,11 @@ const Forum = () => {
               </Button>
             </DialogActions>
           </Dialog>
+          <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                <Alert onClose={() => setOpenSnackbar(false)} severity={severity} >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Box>
       </Box>
     </ThemeProvider>

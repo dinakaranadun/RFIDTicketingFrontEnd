@@ -42,12 +42,12 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
           console.log('User info from appbar:', userInfo);
           setProfile(userInfo);
 
-          // Check if profile image URL exists in localStorage
+          // Check  profile image URL exists in localStorage
           if (userInfo.image_URL && `http://localhost:8000/${userInfo.image_URL}` !== profileImage) {
             const imageURL = `http://localhost:8000/${userInfo.image_URL}`;
             setProfileImage(imageURL);
 
-            // Save image URL in localStorage
+            // Save URL in localStorage
             localStorage.setItem('profileImage', imageURL);
           }
         }
@@ -72,7 +72,8 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
 
   const handleSignOut = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('profileImage');  // Clear profile image when signing out
+    localStorage.removeItem('profileImage');  
+    localStorage.removeItem('recentTrips');
     navigate('/');
   };
 

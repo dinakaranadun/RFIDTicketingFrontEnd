@@ -121,7 +121,7 @@ const Schedule = () => {
         >
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Paper sx={{ p: 2, mb: 4, backgroundColor: customTheme.palette.background.default }}>
+            <Paper sx={{ p: 4, mb: 4, backgroundColor: customTheme.palette.background.default }}>
               <Typography variant="h4" gutterBottom>
                 Search Trains
               </Typography>

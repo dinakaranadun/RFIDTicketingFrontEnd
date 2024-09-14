@@ -15,73 +15,65 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { loginUser } from '../api';
 import { useNavigate } from 'react-router-dom'; 
 
-
-function SignIn() {
+function SignIn({ message }) {
   const [NIC, setNIC] = useState('');
   const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
+  const [nicError, setNicError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
 
+  const validateNIC = () => {
+    if (!NIC) {
+      setNicError('NIC is required');
+      return false;
+    }
+    setNicError('');
+    return true;
+  };
 
-
-  // const validateEmail = () => {
-  //   if (!email) {
-  //     setEmailError('Email is required');
-  //     return false;
-  //   }
-
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   if (!emailRegex.test(email)) {
-  //     setEmailError('Invalid email format');
-  //     return false;
-  //   }
-
-  //   setEmailError('');
-  //   return true;
-  // };
-
-  // const validatePassword = () => {
-  //   if (!password) {
-  //     setPasswordError('Password is required');
-  //     return false;
-  //   }
-
-  //   setPasswordError('');
-  //   return true;
-  // };
+  const validatePassword = () => {
+    if (!password) {
+      setPasswordError('Password is required');
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-      try {
-        const data = await loginUser(NIC, password);
-        const token = data.token;
-        console.log(token);
-  
-        // Store the token
-        localStorage.setItem('token', token);
-        
-        navigate('/dashboard'); 
 
-  
-        console.log('Login successful');
-      } catch (error) {
-        if (error.response) {
-          if (error.response.status === 401) {
-            setLoginError('Invalid email or password');
-          } else {
-            setLoginError(error.response.data.message);
-          }
-        } else if (error.request) {
-          console.error(error.request);
-          setLoginError('Failed to connect to the server');
+    const isNicValid = validateNIC();
+    const isPasswordValid = validatePassword();
+
+    if (!isNicValid || !isPasswordValid) return;
+
+    try {
+      const data = await loginUser(NIC, password);
+      const token = data.token;
+      console.log(token);
+
+      // Store the token
+      localStorage.setItem('token', token);
+
+      navigate('/dashboard');
+      console.log('Login successful');
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 401) {
+          setLoginError('Invalid NIC or password');
         } else {
-          console.error('Error', error.message);
-          setLoginError('An unexpected error occurred');
+          setLoginError(error.response.data.message);
         }
+      } else if (error.request) {
+        console.error(error.request);
+        setLoginError('Failed to connect to the server');
+      } else {
+        console.error('Error', error.message);
+        setLoginError('An unexpected error occurred');
       }
-    
+    }
   };
 
   return (
@@ -102,6 +94,13 @@ function SignIn() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
+
+          {message && (
+            <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+              {message}
+            </Typography>
+          )}
+
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -114,9 +113,9 @@ function SignIn() {
               autoFocus
               value={NIC}
               onChange={(e) => setNIC(e.target.value)}
-              // onBlur={validateEmail}
-              // error={!!emailError}
-              // helperText={emailError}
+              onBlur={validateNIC}
+              error={!!nicError}
+              helperText={nicError}
             />
             <TextField
               margin="normal"
@@ -129,15 +128,18 @@ function SignIn() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              // onBlur={validatePassword}
-              // error={!!passwordError}
-              // helperText={passwordError}
+              onBlur={validatePassword}
+              error={!!passwordError}
+              helperText={passwordError}
             />
+            
+            {/* Display login error */}
             {loginError && (
               <Typography variant="body2" color="error">
                 {loginError}
               </Typography>
             )}
+
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
@@ -152,12 +154,12 @@ function SignIn() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <RouterLink to="/forgetpassword" variant="body2">
+                <RouterLink to="/forgetpassword">
                   Forgot password?
                 </RouterLink>
               </Grid>
               <Grid item>
-                <RouterLink to="/signup" variant="body2">
+                <RouterLink to="/signup">
                   {"Don't have an account? Sign Up"}
                 </RouterLink>
               </Grid>

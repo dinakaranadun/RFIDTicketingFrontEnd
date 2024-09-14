@@ -140,6 +140,12 @@ export const deleteBooking = async (bookingId) => {
   return response.data;
 };
 
+export const requestRefund = async (bookingId) => {
+  const response = await api.put(`/users/requestRefund/${bookingId}`);
+  return response.data;
+};
+
+
 export const submitForumQuestion = async(data) => {
   const response = await api.post('/users/createForum', data);
   return response.data;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createTheme, ThemeProvider ,styled } from '@mui/material/styles';
+import { createTheme, ThemeProvider, styled } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -11,66 +11,57 @@ import Drawer from '../drawer';
 import AppBarComponent from '../appbar';
 import TripCard from './TripCard';
 import TripDetailsDialog from './TripDetailsDialog';
-import {getUpcomingTrips,getUserInfo,getRecentTrips,deleteBooking} from '../api';
+import {getUserInfo, getRecentTrips, deleteBooking,requestRefund } from '../api';
 import { CircularProgress } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
+import RefundDialog from './RefundDialog';
 
 const defaultTheme = createTheme();
 
 const StyledTextField = styled(TextField)({
   '& .MuiOutlinedInput-root': {
     '& fieldset': {
-      borderColor: '#0096FF', 
+      borderColor: '#0096FF',
     },
     '&:hover fieldset': {
-      borderColor: '#0096FF', 
+      borderColor: '#0096FF',
     },
     '&.Mui-focused fieldset': {
-      borderColor: '#0096FF', 
+      borderColor: '#0096FF',
     },
   },
 });
 
+const NoTripsFound = ({ message }) => (
+  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+    <Typography variant="h6" color="textSecondary">{message}</Typography>
+  </Box>
+);
+
 const MyTrips = () => {
   const [open, setOpen] = useState(true);
   const [selectedTrip, setSelectedTrip] = useState(null);
+  const [selectedMissedTrip, setSelectedMissedTrip] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [missedDialogOpen, setMissedDialogOpen] = useState(false);
   const [upcomingTrips, setUpcomingTrips] = useState([]);
   const [recentTrips, setRecentTrips] = useState([]);
   const [filteredUpcomingTrips, setFilteredUpcomingTrips] = useState([]);
   const [filteredRecentTrips, setFilteredRecentTrips] = useState([]);
+  const [notUsedTrips, setNotUsedTrips] = useState([]);
+  const [filteredNotUsedTrips, setFilteredNotUsedTrips] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [bookingCancelled, setBookingCancelled] = React.useState(false);
-
+  const [bookingCancelled, setBookingCancelled] = useState(false);
+  
 
   const toggleDrawer = () => {
     setOpen(!open);
   };
 
-  useEffect(() => {
-    const fetchUpcomingTripData = async () => {
-      try {
-        setIsLoading(true);
-        const token = localStorage.getItem('token');
-        if (token) {
-          const userInfo = await getUserInfo(token);
-          const upcomingTrips = await getUpcomingTrips({ passenger_id: userInfo.id });
-          setUpcomingTrips(upcomingTrips);
-          setFilteredUpcomingTrips(upcomingTrips);
-        }
-      } catch (error) {
-        console.error('Error fetching Trip data:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUpcomingTripData();
-  }, []);
-
+  
   useEffect(() => {
     const fetchRecentTripData = async () => {
       try {
@@ -79,8 +70,14 @@ const MyTrips = () => {
         if (token) {
           const userInfo = await getUserInfo(token);
           const recentTrips = await getRecentTrips({ passenger_id: userInfo.id });
-          setRecentTrips(recentTrips);
-          setFilteredRecentTrips(recentTrips);
+          const tripsOut = recentTrips.filter(trip => trip.status === 'out');
+          const tripsNotUsed = recentTrips.filter(trip => trip.status === 'notused' || trip.status === 'refund requested');          const tripsUpcoming = recentTrips.filter(trip => trip.status === 'pending');
+          setRecentTrips(tripsOut);
+          setFilteredRecentTrips(tripsOut);
+          setNotUsedTrips(tripsNotUsed);
+          setFilteredNotUsedTrips(tripsNotUsed);
+          setUpcomingTrips(tripsUpcoming);
+          setFilteredUpcomingTrips(tripsUpcoming);
         }
       } catch (error) {
         console.error('Error fetching Trip data:', error);
@@ -98,19 +95,19 @@ const MyTrips = () => {
       setFilteredRecentTrips(recentTrips);
     } else {
       const lowerCaseQuery = searchQuery.toLowerCase();
-  
+
       const filterTrips = trips => trips.filter(trip =>
         trip.start_station.station_name.toLowerCase().includes(lowerCaseQuery) ||
         trip.end_station.station_name.toLowerCase().includes(lowerCaseQuery)
       );
-  
+
       const filteredUpcomingTrips = filterTrips(upcomingTrips);
       const filteredRecentTrips = filterTrips(recentTrips);
-  
+
       setFilteredUpcomingTrips(filteredUpcomingTrips);
       setFilteredRecentTrips(filteredRecentTrips);
     }
-  }, [searchQuery, upcomingTrips, recentTrips]);
+  }, [searchQuery, upcomingTrips, recentTrips,notUsedTrips]);
 
   const cancelBooking = async (bookingId) => {
     console.log('Cancelling booking:', bookingId);
@@ -119,10 +116,23 @@ const MyTrips = () => {
       console.log(response);
       setBookingCancelled(true);
       setTimeout(() => {
-        window.location.reload(); 
+        window.location.reload();
       }, 1000);
     } catch {
       console.log('Error cancelling booking');
+    }
+  };
+
+  const requestRefunding = async (bookingId) => {
+    try {
+      const response = await requestRefund(bookingId);
+      console.log(response);
+      // setBookingCancelled(true);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    } catch {
+      console.log('Error refund booking');
     }
   };
 
@@ -130,10 +140,15 @@ const MyTrips = () => {
     setSelectedTrip(trip);
     setDialogOpen(true);
   };
+  const handleCardClickMissed = (trip) => {
+    setSelectedMissedTrip(trip);
+    setMissedDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedTrip(null);
+    setMissedDialogOpen(false);
   };
 
   const handleSearch = (e) => {
@@ -182,33 +197,64 @@ const MyTrips = () => {
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Typography variant="h4" gutterBottom>Upcoming Trips</Typography>
-                  <Grid container spacing={2} >
-                    {isLoading ? (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                        <CircularProgress size={100} />
-                      </Box>
-                    ) : filteredUpcomingTrips.map((trip) => (
-                      <Grid item xs={12} sm={6} md={4} key={trip.id}>
-                        <TripCard trip={trip} onClick={handleCardClick} isUpcoming={true} />
-                      </Grid>
-                    ))}
-                  </Grid>
+                  {isLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                      <CircularProgress size={100} />
+                    </Box>
+                  ) : filteredUpcomingTrips.length === 0 ? (
+                    <NoTripsFound message="No upcoming trips found." />
+                  ) : (
+                    <Grid container spacing={2}>
+                      {filteredUpcomingTrips.map((trip) => (
+                        <Grid item xs={12} sm={6} md={4} key={trip.id}>
+                          <TripCard trip={trip} onClick={handleCardClick} isUpcoming={true} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
+                </Paper>
+              </Grid>
+              <Grid item xs={12}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                  <Typography variant="h4" gutterBottom>Missed Trips 
+                    <Typography  component="span" sx={{size:1,ml:1}}>(Request before 48 Hours)</Typography>
+                  </Typography>
+                  
+                  {isLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                      <CircularProgress size={100} />
+                    </Box>
+                  ) : filteredNotUsedTrips.length === 0 ? (
+                    <NoTripsFound message="No upcoming trips found." />
+                  ) : (
+                    <Grid container spacing={2}>
+                      {filteredNotUsedTrips.map((trip) => (
+                        <Grid item xs={12} sm={6} md={4} key={trip.id}>
+                          <TripCard trip={trip} onClick={handleCardClickMissed} isUpcoming={true} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
                 </Paper>
               </Grid>
               <Grid item xs={12} sx={{ mt: 4 }}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                   <Typography variant="h4" gutterBottom>Recent Trips</Typography>
-                  <Grid container spacing={2} >
-                    {isLoading ? (
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                        <CircularProgress size={100} />
-                      </Box>
-                    ) : filteredRecentTrips.map((trip) => (
-                      <Grid item xs={12} sm={6} md={4} key={trip.id}>
-                        <TripCard trip={trip} onClick={handleCardClick} />
-                      </Grid>
-                    ))}
-                  </Grid>
+                  {isLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                      <CircularProgress size={100} />
+                    </Box>
+                  ) : filteredRecentTrips.length === 0 ? (
+                    <NoTripsFound message="No recent trips found." />
+                  ) : (
+                    <Grid container spacing={2}>
+                      {filteredRecentTrips.map((trip) => (
+                        <Grid item xs={12} sm={6} md={4} key={trip.id}>
+                          <TripCard trip={trip} onClick={handleCardClick} />
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
                 </Paper>
               </Grid>
             </Grid>
@@ -216,6 +262,7 @@ const MyTrips = () => {
         </Box>
       </Box>
       <TripDetailsDialog open={dialogOpen} handleClose={handleCloseDialog} trip={selectedTrip} isUpcoming={true} cancelBookingFunction={cancelBooking} />
+      <RefundDialog open={missedDialogOpen} handleClose={handleCloseDialog} trip={selectedMissedTrip} isUpcoming={true} requestRefundFunction={requestRefunding} />
     </ThemeProvider>
   );
 }
