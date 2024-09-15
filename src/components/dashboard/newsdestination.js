@@ -102,7 +102,7 @@ const destinations = [
     duration: '6h 30m',
     description: 'Ella is a small village in the highlands of Sri Lanka...',
     imageUrl: '/images/ella.jpeg',
-    images: ['/images/ella.jpeg', '/images/ella.jpeg', '/images/ella.jpeg'],
+    images: ['/images/ella.jpeg', '/images/background.jpeg', '/images/ella.jpeg'],
   },
   {
     title: 'Matara',
