@@ -104,6 +104,7 @@ const MyTrips = () => {
     if (searchQuery === '') {
       setFilteredUpcomingTrips(upcomingTrips);
       setFilteredRecentTrips(recentTrips);
+   
     } else {
       const lowerCaseQuery = searchQuery.toLowerCase();
 
@@ -114,9 +115,11 @@ const MyTrips = () => {
 
       const filteredUpcomingTrips = filterTrips(upcomingTrips);
       const filteredRecentTrips = filterTrips(recentTrips);
+  
 
       setFilteredUpcomingTrips(filteredUpcomingTrips);
       setFilteredRecentTrips(filteredRecentTrips);
+      
     }
   }, [searchQuery, upcomingTrips, recentTrips,notUsedTrips]);
 

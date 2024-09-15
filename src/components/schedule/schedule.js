@@ -35,11 +35,7 @@ const defaultTheme = createTheme();
 
 const Schedule = () => {
   const [open, setOpen] = useState(true);
-  const [searchParams, setSearchParams] = useState({
-    startStation: '',
-    endStation: '',
-    date: '',
-  });
+  const [searchParams, setSearchParams] = useState({startStation: '',endStation: '',date: '',});
   const [departureOptions, setDepartureOptions] = useState([]);
   const [destinationOptions, setDestinationOptions] = useState([]);
   const [selectedDeparture, setSelectedDeparture] = useState('');

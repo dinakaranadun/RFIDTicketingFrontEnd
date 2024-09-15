@@ -44,7 +44,6 @@ const CheckoutForm = ({ amount }) => {
             const handlePaymentSuccess = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    console.log('here');
                     if (token) {
                         const userInfo = await getUserInfo(token);
                         const response = await paymentSuccess({ user_id: userInfo.id, amount:amount });

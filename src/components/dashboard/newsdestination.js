@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-// Generate Data
 const destinations = [
   {
     title: 'Kandy',

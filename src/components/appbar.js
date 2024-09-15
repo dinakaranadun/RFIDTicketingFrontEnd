@@ -74,6 +74,8 @@ const AppBarComponent = ({ open, toggleDrawer }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('profileImage');  
     localStorage.removeItem('recentTrips');
+    localStorage.removeItem('userName');
+
     navigate('/');
   };
 

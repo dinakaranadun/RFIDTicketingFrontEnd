@@ -1,8 +1,6 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Typography, Box, Divider } from '@mui/material';
 
-
-
 const TripDetailsDialog = ({ open, handleClose, trip,isUpcoming,bookingCancelled ,requestRefundFunction}) => {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth sx={{ "& .MuiDialog-paper": { borderRadius: '50px' }}}>

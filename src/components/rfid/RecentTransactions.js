@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Paper, Typography, List, ListItem, ListItemText, Divider, Box, Grid } from '@mui/material';
+import { Container, Paper, Typography, List, ListItem, ListItemText, Divider, Box, Grid, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -23,6 +23,7 @@ const TransactionListItem = styled(ListItem)(({ theme }) => ({
 const Transactions = () => {
     const [transactions, setTransactions] = useState([]);
     const [chartData, setChartData] = useState({});
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -30,6 +31,7 @@ const Transactions = () => {
                 const token = localStorage.getItem('token');
                 if (!token) {
                     console.error('No token found');
+                    setLoading(false);
                     return;
                 }
 
@@ -49,6 +51,8 @@ const Transactions = () => {
                 }
             } catch (error) {
                 console.error('Error fetching transactions:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -60,10 +64,10 @@ const Transactions = () => {
             console.error('No transactions available for chart data');
             return;
         }
-
+        // Sort transactions by date 
+        transactions.sort((a, b) => new Date(a.date) - new Date(b.date));
         const labels = transactions.map(transaction => new Date(transaction.date).toLocaleDateString());
         const data = transactions.map(transaction => parseFloat(transaction.amount));
-
         setChartData({
             labels,
             datasets: [
@@ -81,47 +85,53 @@ const Transactions = () => {
             ],
         });
     };
-
+    
     return (
         <Container maxWidth="md">
             <StyledPaper elevation={3}>
                 <Typography variant="h5" component="h2" gutterBottom>
                     Recent Transactions
                 </Typography>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                        <List>
-                            {transactions.length > 0 ? (
-                                transactions.slice(0, 4).map((transaction, index) => (
-                                    <React.Fragment key={transaction.id}>
-                                        <TransactionListItem>
-                                            <ListItemText
-                                                primary={`Amount: ${transaction.amount} LKR`}
-                                                secondary={`Date: ${new Date(transaction.date).toLocaleString()}`}
-                                            />
-                                        </TransactionListItem>
-                                        {index < transactions.length - 1 && <Divider />}
-                                    </React.Fragment>
-                                ))
+                {loading ? (
+                    <Box display="flex" justifyContent="center" alignItems="center" height="300px">
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <List>
+                                {transactions.length > 0 ? (
+                                    transactions.slice(0, 4).map((transaction, index) => (
+                                        <React.Fragment key={transaction.id}>
+                                            <TransactionListItem>
+                                                <ListItemText
+                                                    primary={`Amount: ${transaction.amount} LKR`}
+                                                    secondary={`Date: ${new Date(transaction.date).toLocaleString()}`}
+                                                />
+                                            </TransactionListItem>
+                                            {index < transactions.length - 1 && <Divider />}
+                                        </React.Fragment>
+                                    ))
+                                ) : (
+                                    <Typography variant="body1" color="textSecondary">
+                                        No transactions available.
+                                    </Typography>
+                                )}
+                            </List>
+                        </Grid>
+                        <Grid item xs={12} md={6} >
+                            {chartData.labels && chartData.labels.length > 0 ? (
+                                <Box sx={{ height: '300px' }}>
+                                    <Line data={chartData} options={{ maintainAspectRatio: false }} />
+                                </Box>
                             ) : (
                                 <Typography variant="body1" color="textSecondary">
-                                    No transactions available.
+                                    No chart data available.
                                 </Typography>
                             )}
-                        </List>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12} md={6} >
-                        {chartData.labels && chartData.labels.length > 0 ? (
-                            <Box sx={{ height: '300px' }}>
-                                <Line data={chartData} options={{ maintainAspectRatio: false }} />
-                            </Box>
-                        ) : (
-                            <Typography variant="body1" color="textSecondary">
-                                No chart data available.
-                            </Typography>
-                        )}
-                    </Grid>
-                </Grid>
+                )}
             </StyledPaper>
         </Container>
     );

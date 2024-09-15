@@ -15,6 +15,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { loginUser } from '../api';
 import { useNavigate } from 'react-router-dom'; 
 
+const theme = createTheme();
+
 function SignIn({ message }) {
   const [NIC, setNIC] = useState('');
   const [password, setPassword] = useState('');
@@ -77,96 +79,107 @@ function SignIn({ message }) {
   };
 
   return (
-    <ThemeProvider theme={createTheme()}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
-          </Typography>
-
-          {message && (
-            <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-              {message}
+    <ThemeProvider theme={theme}>
+      <Box
+        sx={{
+          backgroundImage: 'url(images/background.jpeg)', 
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Container component="main" maxWidth="xs" sx={{backgroundColor: 'rgba(255, 255, 255, 0.8)', padding: 3, borderRadius: 2 }}>
+          <CssBaseline />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+              <LockOutlinedIcon />
+            </Avatar>
+            <Typography component="h1" variant="h5">
+              Sign in
             </Typography>
-          )}
 
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="NIC"
-              label="National Identity Card Number"
-              name="NIC"
-              autoComplete="NIC"
-              autoFocus
-              value={NIC}
-              onChange={(e) => setNIC(e.target.value)}
-              onBlur={validateNIC}
-              error={!!nicError}
-              helperText={nicError}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onBlur={validatePassword}
-              error={!!passwordError}
-              helperText={passwordError}
-            />
-            
-            {/* Display login error */}
-            {loginError && (
-              <Typography variant="body2" color="error">
-                {loginError}
+            {message && (
+              <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+                {message}
               </Typography>
             )}
 
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <RouterLink to="/forgetpassword">
-                  Forgot password?
-                </RouterLink>
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="NIC"
+                label="National Identity Card Number"
+                name="NIC"
+                autoComplete="NIC"
+                autoFocus
+                value={NIC}
+                onChange={(e) => setNIC(e.target.value)}
+                onBlur={validateNIC}
+                error={!!nicError}
+                helperText={nicError}
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type="password"
+                id="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={validatePassword}
+                error={!!passwordError}
+                helperText={passwordError}
+              />
+              
+              {/* Display login error */}
+              {loginError && (
+                <Typography variant="body2" color="error">
+                  {loginError}
+                </Typography>
+              )}
+
+              <FormControlLabel
+                control={<Checkbox value="remember" color="primary" />}
+                label="Remember me"
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Sign In
+              </Button>
+              <Grid container>
+                <Grid item xs>
+                  <RouterLink to="/forgetpassword">
+                    Forgot password?
+                  </RouterLink>
+                </Grid>
+                <Grid item>
+                  <RouterLink to="/signup">
+                    {"Don't have an account? Sign Up"}
+                  </RouterLink>
+                </Grid>
               </Grid>
-              <Grid item>
-                <RouterLink to="/signup">
-                  {"Don't have an account? Sign Up"}
-                </RouterLink>
-              </Grid>
-            </Grid>
+            </Box>
           </Box>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 }

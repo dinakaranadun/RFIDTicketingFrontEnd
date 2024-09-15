@@ -157,22 +157,23 @@ export default function Dashboard() {
             {greeting}, <span style={{ fontWeight: 'bold' }}>{userName}</span>
           </Typography>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-            <TextField
+          <Typography variant='h2' sx={{ fontWeight: 'bold',color:'#0096FF' }} >Welcome</Typography>
+            {/* <TextField
               variant="outlined"
-              InputProps={{
-                startAdornment: (
-                  <IconButton style={{ color: theme.palette.text.secondary }}>
-                    <SearchIcon />
-                  </IconButton>
-                ),
-                endAdornment: (
-                  <Button variant="contained" color="primary" style={{ backgroundColor: '#2979ff', color: '#fff', borderRadius: 5, textTransform: 'none' }}>
-                    Search
-                  </Button>
-                )
-              }}
+              // InputProps={{
+              //   startAdornment: (
+              //     <IconButton style={{ color: theme.palette.text.secondary }}>
+              //       <SearchIcon />
+              //     </IconButton>
+              //   ),
+              //   endAdornment: (
+              //     <Button variant="contained" color="primary" style={{ backgroundColor: '#2979ff', color: '#fff', borderRadius: 5, textTransform: 'none' }}>
+              //       Search
+              //     </Button>
+              //   )
+              // }}
               style={{ marginRight: 10, backgroundColor: '#f0f0f0', textTransform: 'capitalize' }}
-            />
+            /> */}
           </div>
         </Grid>
         <Grid item xs={12}>
