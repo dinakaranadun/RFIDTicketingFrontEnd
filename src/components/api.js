@@ -5,16 +5,16 @@ const api = axios.create({
   timeout: 10000,
 });
 
-const refreshToken = async () => {
-  try {
-    const response = await api.post('/auth/refresh');
-    console.log("Token refreshed successfully"); 
-    return response.data.access_token;
-  } catch (error) {
-    console.error('Error refreshing token:', error); 
-    throw error; 
-  }
-};
+// const refreshToken = async () => {
+//   try {
+//     const response = await api.post('/auth/refresh');
+//     console.log("Token refreshed successfully"); 
+//     return response.data.access_token;
+//   } catch (error) {
+//     console.error('Error refreshing token:', error); 
+//     throw error; 
+//   }
+// };
 
 
 
@@ -96,7 +96,7 @@ export const changeUserPicture = async (userId, formData) => {
               'Content-Type': 'multipart/form-data',
           },
       });
-      return response.data; // Should include success status and the image path
+      return response.data; 
   } catch (error) {
       throw error;
   }

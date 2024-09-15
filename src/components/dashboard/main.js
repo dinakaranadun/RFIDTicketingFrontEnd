@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
@@ -7,9 +8,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import Slider from 'react-slick';
-import { Card, CardContent, Button, Grid, Container, Modal, Stack, Fade, Backdrop } from '@mui/material';
+import { Card, CardContent, Button, Grid, Container, Modal, Stack, Fade, Backdrop, CircularProgress } from '@mui/material';
 import { getUserInfo, getUpcomingTrips, deleteBooking } from '../api';
-
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
@@ -60,24 +60,44 @@ export default function Dashboard() {
   const [selectedTrip, setSelectedTrip] = React.useState(null);
   const [open, setOpen] = React.useState(false);
   const [bookingCancelled, setBookingCancelled] = React.useState(false);
+  const [loading, setLoading] = React.useState(true); 
 
-  React.useEffect(() => {
-    async function fetchData() {
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true); 
       try {
         const token = localStorage.getItem('token');
         console.log('Retrieved token:', token);
+
         if (token) {
-          const userInfo = await getUserInfo(token);
-          console.log('User info:', userInfo);
-          setUserName(userInfo.fName);
-          // Fetch upcoming trips 
-          const upcomingTrips = await getUpcomingTrips({ passenger_id: userInfo.id });
-          setUpcomingTrips(upcomingTrips);
+          const storedUserName = localStorage.getItem('userName');
+          let userInfo = null;
+
+          if (storedUserName) {
+            setUserName(storedUserName);
+          } else {
+            userInfo = await getUserInfo(token);
+            console.log('User info:', userInfo);
+            const fetchedUserName = userInfo.fName;
+            setUserName(fetchedUserName);
+            localStorage.setItem('userName', fetchedUserName);
+          }
+          if (!storedUserName && userInfo) {
+            const upcomingTripsData = await getUpcomingTrips({ passenger_id: userInfo.id });
+            setUpcomingTrips(upcomingTripsData);
+          } else if (storedUserName) {
+            const fetchedUserInfo = await getUserInfo(token); 
+            const upcomingTripsData = await getUpcomingTrips({ passenger_id: fetchedUserInfo.id });
+            setUpcomingTrips(upcomingTripsData);
+          }
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
+      } finally {
+        setLoading(false); 
       }
-    }
+    };
+
     fetchData();
     setGreeting(determineGreeting());
   }, []);
@@ -159,7 +179,11 @@ export default function Dashboard() {
           <Typography variant="h6" style={{ fontWeight: 'bold', marginBottom: 20 }}>
             Your Upcoming Trips
           </Typography>
-          {upcomingTrips.length > 0 ? (
+          {loading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '200px' }}>
+              <CircularProgress />
+            </Box>
+          ) : upcomingTrips.length > 0 ? (
             <Slider {...sliderSettings}>
               {upcomingTrips.map((trip) => (
                 <div key={trip.id} className="container" style={{ margin: '0 1rem' }}>
@@ -279,7 +303,7 @@ export default function Dashboard() {
                   Cancel Booking
                 </Button>
               ) : (
-                <Typography variant="body1" sx={{ color: 'red',fontWeight:'bold' }}>
+                <Typography variant="body1" sx={{ color: 'red', fontWeight: 'bold' }}>
                   Booking cancelled successfully
                 </Typography>
               )}

@@ -17,6 +17,14 @@ import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import TextField from '@mui/material/TextField';
 import RefundDialog from './RefundDialog';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 
 const defaultTheme = createTheme();
 
@@ -54,6 +62,9 @@ const MyTrips = () => {
   const [filteredNotUsedTrips, setFilteredNotUsedTrips] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [severity, setSeverity] = useState('success');
   const [bookingCancelled, setBookingCancelled] = useState(false);
   
 
@@ -110,16 +121,39 @@ const MyTrips = () => {
   }, [searchQuery, upcomingTrips, recentTrips,notUsedTrips]);
 
   const cancelBooking = async (bookingId) => {
-    console.log('Cancelling booking:', bookingId);
     try {
       const response = await deleteBooking(bookingId);
       console.log(response);
+  
       setBookingCancelled(true);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch {
-      console.log('Error cancelling booking');
+      setSeverity('success');
+      setSnackbarMessage('Removed successfully');
+      setOpenSnackbar(true);
+  
+      setUpcomingTrips((prevTrips) =>
+        prevTrips.filter((trip) => trip.id !== bookingId)
+      );
+      setFilteredUpcomingTrips((prevTrips) =>
+        prevTrips.filter((trip) => trip.id !== bookingId)
+      );
+
+      setRecentTrips((prevTrips) =>
+        prevTrips.filter((trip) => trip.id !== bookingId)
+      );
+      setFilteredRecentTrips((prevTrips) =>
+        prevTrips.filter((trip) => trip.id !== bookingId)
+      );
+      
+    } catch (error) {
+      console.log('Error cancelling booking:', error);
+      setBookingCancelled(false);
+      setSeverity('error');
+      setSnackbarMessage('Error removing booking');
+    }
+    finally{
+      setMissedDialogOpen(false);
+      setDialogOpen(false);
+
     }
   };
 
@@ -127,14 +161,34 @@ const MyTrips = () => {
     try {
       const response = await requestRefund(bookingId);
       console.log(response);
-      // setBookingCancelled(true);
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch {
-      console.log('Error refund booking');
+      setSeverity('success');
+      setSnackbarMessage('Refund requested successfully');
+      setOpenSnackbar(true);
+  
+      setNotUsedTrips((prevTrips) =>
+        prevTrips.map((trip) =>
+          trip.id === bookingId ? { ...trip, status: 'refund requested' } : trip
+        )
+      );
+      setFilteredNotUsedTrips((prevTrips) =>
+        prevTrips.map((trip) =>
+          trip.id === bookingId ? { ...trip, status: 'refund requested' } : trip
+        )
+      );
+
+    } catch (error) {
+      console.log('Error refunding booking:', error);
+      setSeverity('error');
+      setSnackbarMessage('Error requesting refund');
+      setOpenSnackbar(true);
+    }
+    finally{
+      setMissedDialogOpen(false);
+      setDialogOpen(false);
+
     }
   };
+  
 
   const handleCardClick = (trip) => {
     setSelectedTrip(trip);
@@ -216,16 +270,15 @@ const MyTrips = () => {
               </Grid>
               <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant="h4" gutterBottom>Missed Trips 
+                  <Typography variant="h4" gutterBottom>Request Refund 
                     <Typography  component="span" sx={{size:1,ml:1}}>(Request before 48 Hours)</Typography>
                   </Typography>
-                  
                   {isLoading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                       <CircularProgress size={100} />
                     </Box>
                   ) : filteredNotUsedTrips.length === 0 ? (
-                    <NoTripsFound message="No upcoming trips found." />
+                    <NoTripsFound message="No Refundable Trips Found." />
                   ) : (
                     <Grid container spacing={2}>
                       {filteredNotUsedTrips.map((trip) => (
@@ -260,6 +313,11 @@ const MyTrips = () => {
             </Grid>
           </Container>
         </Box>
+        <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                <Alert onClose={() => setOpenSnackbar(false)} severity={severity} >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
       </Box>
       <TripDetailsDialog open={dialogOpen} handleClose={handleCloseDialog} trip={selectedTrip} isUpcoming={true} cancelBookingFunction={cancelBooking} />
       <RefundDialog open={missedDialogOpen} handleClose={handleCloseDialog} trip={selectedMissedTrip} isUpcoming={true} requestRefundFunction={requestRefunding} />
