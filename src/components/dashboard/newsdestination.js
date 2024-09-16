@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
@@ -12,11 +11,11 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Slide from '@mui/material/Slide';
-import Slider from 'react-slick'; // Importing Slider
+import Slider from 'react-slick'; 
 import { makeStyles } from '@mui/styles';
 import { useTheme } from '@mui/material/styles';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'; // Left arrow icon
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'; // Right arrow icon
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'; 
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'; 
 
 const useStyles = makeStyles((theme) => ({
   dialogImage: {
@@ -40,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '1.1rem',
     lineHeight: 1.5,
     color: '#555',
-    marginTop:'20px'
+    marginTop:'20px',
   },
   buttonBase: {
     maxWidth: '80%',
@@ -54,10 +53,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'block',
     backgroundColor: 'white',
     color: '#0096FF',
-    borderRadius: '50%',
-    padding: '15px',
-    zIndex: 1,
-    fontSize: '3rem', 
+    zIndex:1,
+    fontSize: '1.5rem', 
+    borderRadius: '100%',
     '&:hover': {
       backgroundColor: 'white',
       color: '#0096FF',
@@ -95,7 +93,7 @@ const destinations = [
     duration: '3h',
     description: "Kandy is a city in Sri Lanka's Central Province and the country's second largest city.",
     imageUrl: '/images/kandy.jpg',
-    images: ['/images/kandy.jpg', '/images/kandy.jpg', '/images/kandy.jpg'],
+    images: ['/images/kandy.jpg', '/images/kandyview.jpg', '/images/perahara.png'],
   },
   {
     title: 'Ella',

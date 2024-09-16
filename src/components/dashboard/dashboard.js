@@ -68,7 +68,7 @@ const Dashboard = () => {
                 </Paper>
               </Grid>
               <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', width: 1210 }}>
+                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', width: 1210,height:370 }}>
                   <Orders />
                 </Paper>
               </Grid>

@@ -185,6 +185,9 @@ const Forum = () => {
       const response = await submitForumQuestion(data);
       console.log('Question submitted successfully:', response);
       setStartDiscussionOpen(false);
+      setQuestion('');
+      setCategory('');
+      setContent('');
       const updatedForumPosts = await getForumPost();
       const userPosts = updatedForumPosts.filter(post => post.passenger.id === userInfo.id);
       const otherPosts = updatedForumPosts.filter(post => post.passenger.id !== userInfo.id);
